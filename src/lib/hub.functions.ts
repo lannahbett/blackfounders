@@ -53,7 +53,7 @@ export const updateProfile = createServerFn({ method: "POST" })
 export const setRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ role: z.enum(["founder", "mentor"]) }).parse(d),
+    z.object({ role: z.enum(["founder"]) }).parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -79,14 +79,17 @@ export const upsertMentorProfile = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    // ensure role is mentor
-    await supabase
-      .from("user_roles")
-      .upsert({ user_id: userId, role: "mentor" }, { onConflict: "user_id,role" });
-    const { error } = await supabase
-      .from("mentor_profiles")
-      .upsert({ user_id: userId, ...data });
+    const { supabase } = context;
+    // Calls SECURITY DEFINER RPC that grants the mentor role + creates an unverified profile.
+    // Admin must flip `verified` before the mentor is treated as vetted.
+    const { error } = await supabase.rpc("apply_for_mentor", {
+      _expertise: data.expertise,
+      _industries: data.industries,
+      _years_experience: data.years_experience ?? null,
+      _hourly_rate: data.hourly_rate ?? null,
+      _availability_note: data.availability_note ?? null,
+      _accepting_mentees: data.accepting_mentees,
+    });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
