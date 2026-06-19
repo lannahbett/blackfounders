@@ -89,6 +89,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Black Founders Hub — Mentorship, Grants & Community for Black Women Founders" },
       { name: "twitter:description", content: "A platform connecting Black Women Founders with verified mentors, grant opportunities, and a community that gets it." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9bcf053e-3dd5-4d6a-a518-24cb4adaf33f/id-preview-6738419f--a5e11b70-610f-42b3-a89a-ad5305e1cf62.lovable.app-1781901406461.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9bcf053e-3dd5-4d6a-a518-24cb4adaf33f/id-preview-6738419f--a5e11b70-610f-42b3-a89a-ad5305e1cf62.lovable.app-1781901406461.png" },
     ],
     links: [
       {
