@@ -108,7 +108,7 @@ export const listMentors = createServerFn({ method: "GET" })
     let query = supabase
       .from("mentor_profiles")
       .select(
-        "user_id, expertise, industries, years_experience, hourly_rate, availability_note, verified, accepting_mentees, profile:profiles!mentor_profiles_user_id_fkey(full_name, headline, bio, avatar_url, location, industry)",
+        "user_id, expertise, industries, years_experience, hourly_rate, availability_note, verified, accepting_mentees, profile:profiles!mentor_profiles_user_id_profile_fkey(full_name, headline, bio, avatar_url, location, industry)",
       )
       .eq("accepting_mentees", true)
       .order("verified", { ascending: false });
@@ -143,7 +143,7 @@ export const getMentor = createServerFn({ method: "GET" })
     const { data: mentor, error } = await supabase
       .from("mentor_profiles")
       .select(
-        "*, profile:profiles!mentor_profiles_user_id_fkey(full_name, headline, bio, avatar_url, location, industry, linkedin_url, website)",
+        "*, profile:profiles!mentor_profiles_user_id_profile_fkey(full_name, headline, bio, avatar_url, location, industry, linkedin_url, website)",
       )
       .eq("user_id", data.id)
       .maybeSingle();
@@ -178,7 +178,7 @@ export const listRequests = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("mentorship_requests")
       .select(
-        "*, founder:profiles!mentorship_requests_founder_id_fkey(full_name, avatar_url, headline), mentor:profiles!mentorship_requests_mentor_id_fkey(full_name, avatar_url, headline)",
+        "*, founder:profiles!mentorship_requests_founder_id_profile_fkey(full_name, avatar_url, headline), mentor:profiles!mentorship_requests_mentor_id_profile_fkey(full_name, avatar_url, headline)",
       )
       .or(`founder_id.eq.${userId},mentor_id.eq.${userId}`)
       .order("created_at", { ascending: false });
@@ -241,7 +241,7 @@ export const listSessions = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("sessions")
       .select(
-        "*, founder:profiles!sessions_founder_id_fkey(full_name, avatar_url), mentor:profiles!sessions_mentor_id_fkey(full_name, avatar_url)",
+        "*, founder:profiles!sessions_founder_id_profile_fkey(full_name, avatar_url), mentor:profiles!sessions_mentor_id_profile_fkey(full_name, avatar_url)",
       )
       .or(`founder_id.eq.${userId},mentor_id.eq.${userId}`)
       .order("scheduled_at", { ascending: true });
@@ -270,7 +270,7 @@ export const listConversations = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("messages")
       .select(
-        "id, sender_id, recipient_id, body, read_at, created_at, sender:profiles!messages_sender_id_fkey(full_name, avatar_url), recipient:profiles!messages_recipient_id_fkey(full_name, avatar_url)",
+        "id, sender_id, recipient_id, body, read_at, created_at, sender:profiles!messages_sender_id_profile_fkey(full_name, avatar_url), recipient:profiles!messages_recipient_id_profile_fkey(full_name, avatar_url)",
       )
       .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
       .order("created_at", { ascending: false })
@@ -392,7 +392,7 @@ export const listPosts = createServerFn({ method: "GET" })
     const { data, error } = await supabase
       .from("posts")
       .select(
-        "*, author:profiles!posts_author_id_fkey(full_name, avatar_url, headline), likes:post_likes(count), comments:post_comments(count)",
+        "*, author:profiles!posts_author_id_profile_fkey(full_name, avatar_url, headline), likes:post_likes(count), comments:post_comments(count)",
       )
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -430,13 +430,13 @@ export const getPost = createServerFn({ method: "GET" })
       supabase
         .from("posts")
         .select(
-          "*, author:profiles!posts_author_id_fkey(full_name, avatar_url, headline)",
+          "*, author:profiles!posts_author_id_profile_fkey(full_name, avatar_url, headline)",
         )
         .eq("id", data.id)
         .maybeSingle(),
       supabase
         .from("post_comments")
-        .select("*, author:profiles!post_comments_author_id_fkey(full_name, avatar_url)")
+        .select("*, author:profiles!post_comments_author_id_profile_fkey(full_name, avatar_url)")
         .eq("post_id", data.id)
         .order("created_at", { ascending: true }),
       supabase
