@@ -6,7 +6,6 @@ import {
   useRouter,
   HeadContent,
   Scripts,
-  ClientOnly,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
@@ -84,10 +83,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Black Founders Hub — Mentorship, Grants & Community for Black Women Founders" },
       { name: "description", content: "A platform connecting Black Women Founders with verified mentors, grant opportunities, and a community that gets it." },
       { name: "author", content: "Black Founders Hub" },
-      { property: "og:title", content: "Black Founders Hub" },
-      { property: "og:description", content: "Mentorship, grants, and community for Black Women Founders." },
+      { property: "og:title", content: "Black Founders Hub — Mentorship, Grants & Community for Black Women Founders" },
+      { property: "og:description", content: "A platform connecting Black Women Founders with verified mentors, grant opportunities, and a community that gets it." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Black Founders Hub — Mentorship, Grants & Community for Black Women Founders" },
+      { name: "twitter:description", content: "A platform connecting Black Women Founders with verified mentors, grant opportunities, and a community that gets it." },
     ],
     links: [
       {
@@ -131,9 +132,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
-      <ClientOnly fallback={null}>
-        <Toaster richColors position="top-right" />
-      </ClientOnly>
+      <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
 }
