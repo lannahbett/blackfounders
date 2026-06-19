@@ -89,7 +89,7 @@ export const upsertMentorProfile = createServerFn({ method: "POST" })
       _hourly_rate: data.hourly_rate ?? null,
       _availability_note: data.availability_note ?? null,
       _accepting_mentees: data.accepting_mentees,
-    });
+    } as never);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
