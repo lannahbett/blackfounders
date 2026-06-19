@@ -1,10 +1,9 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getMe, listGrants, listRequests, listSessions } from "@/lib/hub.functions";
 import { listSavedGrants } from "@/lib/saved-grants.functions";
 import { PageHeader } from "@/components/page-header";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Calendar, CheckCircle2, Circle, Inbox, Sparkles } from "lucide-react";
 import { DataErrorState } from "@/components/data-error-state";
