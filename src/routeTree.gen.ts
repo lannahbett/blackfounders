@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedSessionsRouteImport } from './routes/_authenticated/sessions'
 import { Route as AuthenticatedRequestsRouteImport } from './routes/_authenticated/requests'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -24,6 +27,10 @@ import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedMentorsIdRouteImport } from './routes/_authenticated/mentors.$id'
 import { Route as AuthenticatedGrantsIdRouteImport } from './routes/_authenticated/grants.$id'
 import { Route as AuthenticatedCommunityIdRouteImport } from './routes/_authenticated/community.$id'
+import { Route as AuthenticatedAdminFeedbackRouteImport } from './routes/_authenticated/admin.feedback'
+import { Route as AuthenticatedAdminBlogRouteImport } from './routes/_authenticated/admin.blog'
+import { Route as AuthenticatedAdminBlogNewRouteImport } from './routes/_authenticated/admin.blog.new'
+import { Route as AuthenticatedAdminBlogIdRouteImport } from './routes/_authenticated/admin.blog.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -37,6 +44,21 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedSessionsRoute = AuthenticatedSessionsRouteImport.update({
@@ -104,6 +126,29 @@ const AuthenticatedCommunityIdRoute =
     path: '/community/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminFeedbackRoute =
+  AuthenticatedAdminFeedbackRouteImport.update({
+    id: '/admin/feedback',
+    path: '/admin/feedback',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminBlogRoute = AuthenticatedAdminBlogRouteImport.update({
+  id: '/admin/blog',
+  path: '/admin/blog',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminBlogNewRoute =
+  AuthenticatedAdminBlogNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminBlogRoute,
+  } as any)
+const AuthenticatedAdminBlogIdRoute =
+  AuthenticatedAdminBlogIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminBlogRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -112,6 +157,11 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/requests': typeof AuthenticatedRequestsRoute
   '/sessions': typeof AuthenticatedSessionsRoute
+  '/api/chat': typeof ApiChatRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/blog/': typeof BlogIndexRoute
+  '/admin/blog': typeof AuthenticatedAdminBlogRouteWithChildren
+  '/admin/feedback': typeof AuthenticatedAdminFeedbackRoute
   '/community/$id': typeof AuthenticatedCommunityIdRoute
   '/grants/$id': typeof AuthenticatedGrantsIdRoute
   '/mentors/$id': typeof AuthenticatedMentorsIdRoute
@@ -120,6 +170,8 @@ export interface FileRoutesByFullPath {
   '/grants/': typeof AuthenticatedGrantsIndexRoute
   '/mentors/': typeof AuthenticatedMentorsIndexRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
+  '/admin/blog/new': typeof AuthenticatedAdminBlogNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -128,6 +180,11 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/requests': typeof AuthenticatedRequestsRoute
   '/sessions': typeof AuthenticatedSessionsRoute
+  '/api/chat': typeof ApiChatRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/blog': typeof BlogIndexRoute
+  '/admin/blog': typeof AuthenticatedAdminBlogRouteWithChildren
+  '/admin/feedback': typeof AuthenticatedAdminFeedbackRoute
   '/community/$id': typeof AuthenticatedCommunityIdRoute
   '/grants/$id': typeof AuthenticatedGrantsIdRoute
   '/mentors/$id': typeof AuthenticatedMentorsIdRoute
@@ -136,6 +193,8 @@ export interface FileRoutesByTo {
   '/grants': typeof AuthenticatedGrantsIndexRoute
   '/mentors': typeof AuthenticatedMentorsIndexRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
+  '/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
+  '/admin/blog/new': typeof AuthenticatedAdminBlogNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -146,6 +205,11 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/requests': typeof AuthenticatedRequestsRoute
   '/_authenticated/sessions': typeof AuthenticatedSessionsRoute
+  '/api/chat': typeof ApiChatRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/blog/': typeof BlogIndexRoute
+  '/_authenticated/admin/blog': typeof AuthenticatedAdminBlogRouteWithChildren
+  '/_authenticated/admin/feedback': typeof AuthenticatedAdminFeedbackRoute
   '/_authenticated/community/$id': typeof AuthenticatedCommunityIdRoute
   '/_authenticated/grants/$id': typeof AuthenticatedGrantsIdRoute
   '/_authenticated/mentors/$id': typeof AuthenticatedMentorsIdRoute
@@ -154,6 +218,8 @@ export interface FileRoutesById {
   '/_authenticated/grants/': typeof AuthenticatedGrantsIndexRoute
   '/_authenticated/mentors/': typeof AuthenticatedMentorsIndexRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/_authenticated/admin/blog/$id': typeof AuthenticatedAdminBlogIdRoute
+  '/_authenticated/admin/blog/new': typeof AuthenticatedAdminBlogNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -164,6 +230,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/requests'
     | '/sessions'
+    | '/api/chat'
+    | '/blog/$slug'
+    | '/blog/'
+    | '/admin/blog'
+    | '/admin/feedback'
     | '/community/$id'
     | '/grants/$id'
     | '/mentors/$id'
@@ -172,6 +243,8 @@ export interface FileRouteTypes {
     | '/grants/'
     | '/mentors/'
     | '/messages/'
+    | '/admin/blog/$id'
+    | '/admin/blog/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -180,6 +253,11 @@ export interface FileRouteTypes {
     | '/profile'
     | '/requests'
     | '/sessions'
+    | '/api/chat'
+    | '/blog/$slug'
+    | '/blog'
+    | '/admin/blog'
+    | '/admin/feedback'
     | '/community/$id'
     | '/grants/$id'
     | '/mentors/$id'
@@ -188,6 +266,8 @@ export interface FileRouteTypes {
     | '/grants'
     | '/mentors'
     | '/messages'
+    | '/admin/blog/$id'
+    | '/admin/blog/new'
   id:
     | '__root__'
     | '/'
@@ -197,6 +277,11 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/requests'
     | '/_authenticated/sessions'
+    | '/api/chat'
+    | '/blog/$slug'
+    | '/blog/'
+    | '/_authenticated/admin/blog'
+    | '/_authenticated/admin/feedback'
     | '/_authenticated/community/$id'
     | '/_authenticated/grants/$id'
     | '/_authenticated/mentors/$id'
@@ -205,12 +290,17 @@ export interface FileRouteTypes {
     | '/_authenticated/grants/'
     | '/_authenticated/mentors/'
     | '/_authenticated/messages/'
+    | '/_authenticated/admin/blog/$id'
+    | '/_authenticated/admin/blog/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiChatRoute: typeof ApiChatRoute
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -234,6 +324,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/sessions': {
@@ -320,14 +431,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommunityIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/feedback': {
+      id: '/_authenticated/admin/feedback'
+      path: '/admin/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AuthenticatedAdminFeedbackRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/blog': {
+      id: '/_authenticated/admin/blog'
+      path: '/admin/blog'
+      fullPath: '/admin/blog'
+      preLoaderRoute: typeof AuthenticatedAdminBlogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/blog/new': {
+      id: '/_authenticated/admin/blog/new'
+      path: '/new'
+      fullPath: '/admin/blog/new'
+      preLoaderRoute: typeof AuthenticatedAdminBlogNewRouteImport
+      parentRoute: typeof AuthenticatedAdminBlogRoute
+    }
+    '/_authenticated/admin/blog/$id': {
+      id: '/_authenticated/admin/blog/$id'
+      path: '/$id'
+      fullPath: '/admin/blog/$id'
+      preLoaderRoute: typeof AuthenticatedAdminBlogIdRouteImport
+      parentRoute: typeof AuthenticatedAdminBlogRoute
+    }
   }
 }
+
+interface AuthenticatedAdminBlogRouteChildren {
+  AuthenticatedAdminBlogIdRoute: typeof AuthenticatedAdminBlogIdRoute
+  AuthenticatedAdminBlogNewRoute: typeof AuthenticatedAdminBlogNewRoute
+}
+
+const AuthenticatedAdminBlogRouteChildren: AuthenticatedAdminBlogRouteChildren =
+  {
+    AuthenticatedAdminBlogIdRoute: AuthenticatedAdminBlogIdRoute,
+    AuthenticatedAdminBlogNewRoute: AuthenticatedAdminBlogNewRoute,
+  }
+
+const AuthenticatedAdminBlogRouteWithChildren =
+  AuthenticatedAdminBlogRoute._addFileChildren(
+    AuthenticatedAdminBlogRouteChildren,
+  )
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedRequestsRoute: typeof AuthenticatedRequestsRoute
   AuthenticatedSessionsRoute: typeof AuthenticatedSessionsRoute
+  AuthenticatedAdminBlogRoute: typeof AuthenticatedAdminBlogRouteWithChildren
+  AuthenticatedAdminFeedbackRoute: typeof AuthenticatedAdminFeedbackRoute
   AuthenticatedCommunityIdRoute: typeof AuthenticatedCommunityIdRoute
   AuthenticatedGrantsIdRoute: typeof AuthenticatedGrantsIdRoute
   AuthenticatedMentorsIdRoute: typeof AuthenticatedMentorsIdRoute
@@ -343,6 +500,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedRequestsRoute: AuthenticatedRequestsRoute,
   AuthenticatedSessionsRoute: AuthenticatedSessionsRoute,
+  AuthenticatedAdminBlogRoute: AuthenticatedAdminBlogRouteWithChildren,
+  AuthenticatedAdminFeedbackRoute: AuthenticatedAdminFeedbackRoute,
   AuthenticatedCommunityIdRoute: AuthenticatedCommunityIdRoute,
   AuthenticatedGrantsIdRoute: AuthenticatedGrantsIdRoute,
   AuthenticatedMentorsIdRoute: AuthenticatedMentorsIdRoute,
@@ -360,6 +519,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiChatRoute: ApiChatRoute,
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
