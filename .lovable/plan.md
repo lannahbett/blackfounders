@@ -1,50 +1,55 @@
-# Black Founders Hub — Phase 2
+## Goal
+Clean up the grants list, seed the 10 new opportunities from the LinkedIn screenshots, then perform a QA + security sweep of the platform and fix anything that breaks the user journey.
 
-## 1. Runtime-safe query guards
-Wrap every `createServerFn` handler in `src/lib/hub.functions.ts` with a small `safeQuery()` helper that catches Supabase/PostgREST errors (missing FK relationships, RLS denial, schema-cache misses) and returns `{ data: null, error: { code, message } }` instead of throwing.
+## 1. Grants cleanup (database migration)
+- Deduplicate the `grants` table by `lower(trim(title))` + `organization`, keeping the earliest `created_at` row and deleting the rest. Cascades any `saved_grants` rows referencing dropped IDs onto the surviving row first via an UPDATE.
+- Add a partial unique index on `lower(title), lower(organization)` to prevent future duplicate seeds.
 
-On the client:
-- Add a shared `<DataErrorState />` component (warm, on-brand) that routes render when a query returns an error.
-- Update each `_authenticated` route to check `error` and render the friendly state instead of blanking.
-- Add a route-level `errorComponent` + `notFoundComponent` to every route under `_authenticated/` so SSR failures never produce a blank screen.
+## 2. Seed the 10 new grants from the screenshots
+Insert these into `public.grants` (skip on conflict with the new unique index):
 
-## 2. Grants from the LinkedIn post
-LinkedIn blocks automated scraping (403), so I cannot read that specific post. **Please paste the list of funds/grants from the post** (name, amount, deadline, link) into the chat and I'll seed them into the `grants` table in the same step. As a fallback I can add a vetted set of 2026 funds for Black/female founders from public directories — say the word if you prefer that.
+| # | Title | Org | Amount | Deadline | Region |
+|---|---|---|---|---|---|
+| 1 | Spark Women in Business Grants | Spark | Varies by round | 2026-05-31 | Global |
+| 2 | Cellnex Community Fund | Cellnex | £2,500–£10,000 | Rolling | UK |
+| 3 | Together Women Rise Grants | Together Women Rise | up to $35,000 | 2026-06-05 | Global |
+| 4 | Women in Tech Accelerator 2026 | Standard Chartered Foundation & Village Capital | Share of $600,000+ | 2026-06-30 | Africa |
+| 5 | QEST Sanderson Rising Star Craft Award 2026 | QEST | £10,000 + mentorship | 2026-06-05 | UK |
+| 6 | TBAT Innovation Challenge | TBAT | £50,000 | 2026-06-24 | UK |
+| 7 | Black Equity Organisation F100 Growth Fund | Black Equity Organisation | up to £15,000 | 2026-06-02 | UK |
+| 8 | Women's Empire — Community Impact Grant | Women's Empire | Varies | 2026-06-01 | US (NYC) |
+| 9 | United Women in Faith — Just Energy for All Seed Grants | United Women in Faith | up to $10,000 | 2026-06-17 | Global |
+| 10 | Made Smarter Adoption Programme | Made Smarter | up to £20,000 matched | Rolling | UK |
 
-## 3. AI Companion ("Ask Amara")
-A floating chat widget available on every authenticated route.
-- Server route `src/routes/api/chat.ts` streaming via Lovable AI (`google/gemini-3-flash-preview`, free during promo window).
-- System prompt: founder coach for Black women founders — navigates the platform (mentors, grants, community, sessions), shares founder tips, surfaces relevant opportunities.
-- Tools: `searchGrants`, `searchMentors`, `searchPosts` (call existing server fns) so the assistant can ground answers in the user's actual data.
-- Frontend: `<AmaraDock />` in `_authenticated/route.tsx`, uses `@ai-sdk/react` `useChat`, renders markdown with `react-markdown`, persists conversation in `ai_conversations` + `ai_messages` tables scoped to `auth.uid()`.
+Tags inferred from focus (e.g. `women`, `uk`, `black-founders`, `climate`, `tech`). URLs left null where the post doesn't include one — admins can edit later.
 
-## 4. Blog
-- New tables `blog_posts` (slug, title, excerpt, cover_url, body_md, author_id, published_at, tags[]) and `blog_post_likes`.
-- Public routes: `/blog` (index, SSR for SEO) and `/blog/$slug` (article with JSON-LD, OG tags from loader data).
-- Authoring: admins (via `has_role`) can create/edit at `/_authenticated/blog/new` and `/_authenticated/blog/$slug/edit` using a markdown editor.
-- Public reads via a server publishable client with a narrow `TO anon SELECT` policy on `published_at IS NOT NULL`.
+## 3. QA pass (Playwright against localhost)
+Walk the signed-in user journey end-to-end with screenshots at each step using the pre-injected Supabase session:
+1. `/auth` → `/dashboard` (onboarding checklist renders, no errors)
+2. `/grants` list + filter + open detail + Save grant toggle
+3. `/mentors` list + detail + Send request
+4. `/requests` accept/decline
+5. `/sessions` book + cancel
+6. `/messages` thread send
+7. `/community` create post + like + comment
+8. `/blog` public list + slug detail
+9. Amara AI dock: open, send a prompt, verify stream
+10. Feedback button: submit, verify row lands in `feedback`
+11. Admin routes (`/admin/feedback`, `/admin/blog`) — gated by `has_role('admin')`
 
-## 5. Feedback form
-- New table `feedback` (user_id nullable, category enum: bug/idea/love/other, rating 1–5, message, page_url, created_at).
-- `<FeedbackButton />` fixed bottom-left on authenticated routes opening a dialog form (zod-validated, 1000-char cap).
-- Insert via authenticated server fn; RLS lets users insert/read their own, admins read all.
-- Admin view at `/_authenticated/admin/feedback` (guarded by `has_role('admin')`) with filters, status (new/triaged/resolved), and CSV export.
+Capture console + network errors, log any 4xx/5xx from `_serverFn/*`, screenshot final state of each step. File issues for anything broken and fix in the same pass (typical: missing `<Outlet />`, FK joins, RLS gaps).
 
-## 6. Engagement boosters
-- **Weekly digest email** (opt-in): new grants, top community posts, upcoming sessions. Cron-triggered server route under `/api/public/cron/*` using Lovable AI to summarize.
-- **Streaks & badges**: lightweight `user_activity` table; badges for first post, first mentor booked, 7-day streak. Surface on profile and dashboard.
-- **Weekly community prompt**: a pinned post auto-created Mondays ("This week's win?") to drive feed activity.
-- **Grant deadline reminders**: users can "save" a grant; in-app notification 7 days before deadline.
-- **Notifications center**: bell icon in the header, realtime via Supabase channels for new messages, request status changes, saved-grant reminders.
-- **Onboarding checklist** on the dashboard (complete profile → join community → request first mentor → save a grant) to drive first-week retention.
+## 4. Security sweep
+- Run `security--run_security_scan` and address every High/Critical finding tied to the new tables (`grants`, `saved_grants`, `feedback`, `blog_posts`, `ai_conversations`, `ai_messages`).
+- Confirm RLS + GRANTs on every public table; verify admin-only writes on `grants` and `blog_posts`.
+- Verify `/api/chat` validates auth, rate-limits per user (simple in-memory token bucket is not enough on workers — use a `ai_messages` count check over the last minute).
+- Confirm no service-role key reaches the client bundle; check no `mem://` secrets or env leaks in network responses.
+- Validate Zod input on `feedback`, `createPost`, `sendMessage`, `addComment` server fns (length caps, trim, enum checks).
+
+## 5. Bug-fix pass
+Anything QA or the security scan turns up gets fixed in the same iteration: missing error/notFound components, unsafe `select` joins, missing GRANTs, over-broad RLS, etc. Final deliverable: a green QA run with screenshots + a clean security scan summary.
 
 ## Technical notes
-- All new tables get GRANTs + RLS in the same migration; admin-only tables policy-gated via `has_role`.
-- AI calls go through Lovable AI Gateway server-side; `LOVABLE_API_KEY` already provisioned.
-- Companion + chat persistence reuses the `attachSupabaseAuth` middleware already wired in `src/start.ts`.
-- New routes added under `_authenticated/` inherit the existing auth gate; blog index/article are public for SEO.
-
-## Open questions
-1. **Grants list** from the LinkedIn post — paste it, or want me to use a vetted 2026 fallback set?
-2. **AI companion name** — "Amara" is a placeholder; prefer something else?
-3. **Blog authoring** — admin-only, or open to mentors too?
+- Migration is idempotent: dedupe runs before the unique index creation; seed uses `ON CONFLICT DO NOTHING` on `(lower(title), lower(organization))`.
+- Saved-grants remap step: `UPDATE saved_grants SET grant_id = <keeper> WHERE grant_id = <dup>` before `DELETE FROM grants`.
+- Playwright scripts live under `/tmp/browser/qa-*`; screenshots only, no full-page captures.
