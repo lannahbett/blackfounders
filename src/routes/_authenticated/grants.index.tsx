@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import { format } from "date-fns";
 import { useState } from "react";
+import { SaveGrantButton } from "@/components/save-grant-button";
+import { DataErrorState } from "@/components/data-error-state";
 
 export const Route = createFileRoute("/_authenticated/grants/")({
   head: () => ({ meta: [{ title: "Grants — Black Founders Hub" }] }),
-  errorComponent: ({ error }) => <p className="text-destructive">{error.message}</p>,
+  errorComponent: ({ error, reset }) => <DataErrorState error={error} reset={reset} />,
   notFoundComponent: () => <p>Not found</p>,
   component: GrantsPage,
 });
@@ -30,8 +32,8 @@ function GrantsPage() {
       </div>
       <div className="space-y-4">
         {data.map((g: any) => (
-          <Link key={g.id} to="/grants/$id" params={{ id: g.id }}>
-            <Card className="p-5 transition-colors hover:border-accent">
+          <Card key={g.id} className="p-5 transition-colors hover:border-accent">
+            <Link to="/grants/$id" params={{ id: g.id }} className="block">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">{g.organization}</p>
@@ -44,8 +46,11 @@ function GrantsPage() {
                 {(g.tags ?? []).slice(0, 4).map((t: string) => <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>)}
                 {g.deadline ? <span className="ml-auto text-xs text-muted-foreground">Deadline {format(new Date(g.deadline), "MMM d, yyyy")}</span> : <span className="ml-auto text-xs text-muted-foreground">Rolling</span>}
               </div>
-            </Card>
-          </Link>
+            </Link>
+            <div className="mt-3 flex justify-end">
+              <SaveGrantButton grantId={g.id} />
+            </div>
+          </Card>
         ))}
       </div>
     </div>

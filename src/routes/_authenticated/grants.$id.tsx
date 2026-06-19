@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ExternalLink } from "lucide-react";
+import { SaveGrantButton } from "@/components/save-grant-button";
+import { DataErrorState } from "@/components/data-error-state";
 
 export const Route = createFileRoute("/_authenticated/grants/$id")({
   head: () => ({ meta: [{ title: "Grant — Black Founders Hub" }] }),
-  errorComponent: ({ error }) => <p className="text-destructive">{error.message}</p>,
+  errorComponent: ({ error, reset }) => <DataErrorState error={error} reset={reset} />,
   notFoundComponent: () => <p>Grant not found</p>,
   component: GrantDetail,
 });
@@ -41,9 +43,12 @@ function GrantDetail() {
         <div className="mt-6 flex flex-wrap gap-1.5">
           {(g.tags ?? []).map((t: string) => <Badge key={t} variant="secondary">{t}</Badge>)}
         </div>
-        <Button asChild className="mt-8 bg-accent text-accent-foreground hover:bg-accent/90">
-          <a href={g.url} target="_blank" rel="noreferrer">Visit grant page <ExternalLink className="ml-2 h-4 w-4" /></a>
-        </Button>
+        <div className="mt-8 flex flex-wrap gap-2">
+          <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+            <a href={g.url} target="_blank" rel="noreferrer">Visit grant page <ExternalLink className="ml-2 h-4 w-4" /></a>
+          </Button>
+          <SaveGrantButton grantId={g.id} />
+        </div>
       </Card>
     </div>
   );

@@ -14,6 +14,151 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          parts: Json | null
+          role: string
+        }
+        Insert: {
+          content?: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          parts?: Json | null
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          parts?: Json | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          body_md: string
+          cover_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          tags: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body_md: string
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body_md?: string
+          cover_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          message: string
+          page_url: string | null
+          rating: number | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          message: string
+          page_url?: string | null
+          rating?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          page_url?: string | null
+          rating?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       grants: {
         Row: {
           amount: string | null
@@ -340,6 +485,32 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      saved_grants: {
+        Row: {
+          created_at: string
+          grant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          grant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          grant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_grants_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: false
+            referencedRelation: "grants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sessions: {
         Row: {
