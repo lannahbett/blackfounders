@@ -41,7 +41,31 @@ function AuthedLayout() {
 
   useEffect(() => setOpen(false), [path]);
 
+  useEffect(() => {
+    if (!me) return;
+    pendo.identify({
+      visitor: {
+        id: me.userId,
+        full_name: me.profile?.full_name ?? undefined,
+        headline: me.profile?.headline ?? undefined,
+        location: me.profile?.location ?? undefined,
+        industry: me.profile?.industry ?? undefined,
+        stage: me.profile?.stage ?? undefined,
+        createdAt: me.profile?.created_at ?? undefined,
+        updatedAt: me.profile?.updated_at ?? undefined,
+        roles: me.roles ?? undefined,
+        verified: me.mentor?.verified ?? undefined,
+        acceptingMentees: me.mentor?.accepting_mentees ?? undefined,
+        yearsExperience: me.mentor?.years_experience ?? undefined,
+        hourlyRate: me.mentor?.hourly_rate ?? undefined,
+        expertise: me.mentor?.expertise ?? undefined,
+        mentorIndustries: me.mentor?.industries ?? undefined,
+      },
+    });
+  }, [me]);
+
   async function signOut() {
+    pendo.clearSession();
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   }
