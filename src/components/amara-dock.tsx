@@ -39,7 +39,7 @@ export function AmaraDock() {
 
   const { messages, sendMessage, status } = useChat({
     transport,
-    onError: (err) => toast.error(err.message || "Amara couldn't respond"),
+    onError: (err: Error) => toast.error(err.message || "Amara couldn't respond"),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -143,7 +143,7 @@ export function AmaraDock() {
 
 function MessageBubble({ message }: { message: UIMessage }) {
   const text = message.parts
-    .map((p) => (p.type === "text" ? p.text : ""))
+    .map((p) => (p.type === "text" ? (p as { type: "text"; text: string }).text : ""))
     .join("");
   const isUser = message.role === "user";
   return (
