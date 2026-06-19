@@ -1,8 +1,13 @@
 import { createFileRoute, Outlet, redirect, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Home, Users, BookOpen, Calendar, MessageCircle, Inbox, MessagesSquare, UserCircle, LogOut, Menu } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, MessageCircle, Inbox, MessagesSquare, UserCircle, LogOut, Menu, Newspaper, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AmaraDock } from "@/components/amara-dock";
+import { FeedbackButton } from "@/components/feedback-button";
+import { getMe } from "@/lib/hub.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -22,6 +27,7 @@ const NAV = [
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/grants", label: "Grants", icon: BookOpen },
   { to: "/community", label: "Community", icon: MessagesSquare },
+  { to: "/blog", label: "Blog", icon: Newspaper },
   { to: "/profile", label: "Profile", icon: UserCircle },
 ];
 
@@ -29,6 +35,9 @@ function AuthedLayout() {
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const meFn = useServerFn(getMe);
+  const { data: me } = useQuery({ queryKey: ["me"], queryFn: () => meFn() });
+  const isAdmin = me?.roles?.includes("admin");
 
   useEffect(() => setOpen(false), [path]);
 
@@ -76,6 +85,33 @@ function AuthedLayout() {
                 </Link>
               );
             })}
+            {isAdmin && (
+              <>
+                <div className="mt-3 px-3 pb-1 text-[10px] uppercase tracking-widest text-sidebar-foreground/50">
+                  Admin
+                </div>
+                <Link
+                  to="/admin/feedback"
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                    path.startsWith("/admin/feedback")
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "hover:bg-sidebar-accent/60"
+                  }`}
+                >
+                  <ShieldCheck className="h-4 w-4" /> Feedback
+                </Link>
+                <Link
+                  to="/admin/blog"
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                    path.startsWith("/admin/blog")
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      : "hover:bg-sidebar-accent/60"
+                  }`}
+                >
+                  <Newspaper className="h-4 w-4" /> Blog
+                </Link>
+              </>
+            )}
             <button
               onClick={signOut}
               className="mt-4 flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/60"
@@ -91,6 +127,8 @@ function AuthedLayout() {
           </div>
         </main>
       </div>
+      <AmaraDock />
+      <FeedbackButton />
     </div>
   );
 }

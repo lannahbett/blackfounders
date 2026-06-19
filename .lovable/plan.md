@@ -1,69 +1,50 @@
-## Black Founders Hub — MVP Plan
+# Black Founders Hub — Phase 2
 
-A warm, empowering platform connecting Black Women Founders with verified mentors, grants, peer community, and 1:1 scheduling.
+## 1. Runtime-safe query guards
+Wrap every `createServerFn` handler in `src/lib/hub.functions.ts` with a small `safeQuery()` helper that catches Supabase/PostgREST errors (missing FK relationships, RLS denial, schema-cache misses) and returns `{ data: null, error: { code, message } }` instead of throwing.
 
-### Visual direction
-- **Palette**: deep espresso `#2B1B17`, gold `#E8C547`, terracotta `#D96C3E`, cream `#FBF6EE`.
-- **Typography**: editorial serif headings (Fraunces) + clean sans body (Inter).
-- **Feel**: warm, confident, magazine-style cards with generous spacing and gold accents on CTAs.
+On the client:
+- Add a shared `<DataErrorState />` component (warm, on-brand) that routes render when a query returns an error.
+- Update each `_authenticated` route to check `error` and render the friendly state instead of blanking.
+- Add a route-level `errorComponent` + `notFoundComponent` to every route under `_authenticated/` so SSR failures never produce a blank screen.
 
-### Backend (Lovable Cloud)
-Enable Lovable Cloud and create:
+## 2. Grants from the LinkedIn post
+LinkedIn blocks automated scraping (403), so I cannot read that specific post. **Please paste the list of funds/grants from the post** (name, amount, deadline, link) into the chat and I'll seed them into the `grants` table in the same step. As a fallback I can add a vetted set of 2026 funds for Black/female founders from public directories — say the word if you prefer that.
 
-- `profiles` — id (FK auth.users), full_name, headline, bio, avatar_url, location, industry, stage, linkedin_url, website
-- `user_roles` — separate roles table (`founder` | `mentor` | `admin`) using the secure `has_role()` pattern
-- `mentor_profiles` — user_id, expertise[], industries[], years_experience, hourly_rate (nullable, free OK), availability_note, verified (bool)
-- `mentorship_requests` — founder_id, mentor_id, message, status (pending/accepted/declined), timestamps
-- `sessions` — mentor_id, founder_id, scheduled_at, duration_min, status, meeting_link, notes
-- `messages` — sender_id, recipient_id, body, read_at, created_at (realtime)
-- `grants` — title, organization, amount, deadline, eligibility, description, url, tags[], region
-- `posts` — author_id, title, body, tag (ask/win/resource), created_at
-- `post_comments` — post_id, author_id, body
-- `post_likes` — post_id, user_id
+## 3. AI Companion ("Ask Amara")
+A floating chat widget available on every authenticated route.
+- Server route `src/routes/api/chat.ts` streaming via Lovable AI (`google/gemini-3-flash-preview`, free during promo window).
+- System prompt: founder coach for Black women founders — navigates the platform (mentors, grants, community, sessions), shares founder tips, surfaces relevant opportunities.
+- Tools: `searchGrants`, `searchMentors`, `searchPosts` (call existing server fns) so the assistant can ground answers in the user's actual data.
+- Frontend: `<AmaraDock />` in `_authenticated/route.tsx`, uses `@ai-sdk/react` `useChat`, renders markdown with `react-markdown`, persists conversation in `ai_conversations` + `ai_messages` tables scoped to `auth.uid()`.
 
-RLS on every table; GRANTs to authenticated; admin-only writes for `grants` via `has_role`. Auto-create profile on signup via trigger.
+## 4. Blog
+- New tables `blog_posts` (slug, title, excerpt, cover_url, body_md, author_id, published_at, tags[]) and `blog_post_likes`.
+- Public routes: `/blog` (index, SSR for SEO) and `/blog/$slug` (article with JSON-LD, OG tags from loader data).
+- Authoring: admins (via `has_role`) can create/edit at `/_authenticated/blog/new` and `/_authenticated/blog/$slug/edit` using a markdown editor.
+- Public reads via a server publishable client with a narrow `TO anon SELECT` policy on `published_at IS NOT NULL`.
 
-### Auth
-- Email/password + Google sign-in (via Lovable broker).
-- Sign-up flow: choose role (Founder or Mentor) → role-specific onboarding (industry/stage for founders; expertise/experience for mentors).
-- `/auth` route public; everything else under `_authenticated/`.
+## 5. Feedback form
+- New table `feedback` (user_id nullable, category enum: bug/idea/love/other, rating 1–5, message, page_url, created_at).
+- `<FeedbackButton />` fixed bottom-left on authenticated routes opening a dialog form (zod-validated, 1000-char cap).
+- Insert via authenticated server fn; RLS lets users insert/read their own, admins read all.
+- Admin view at `/_authenticated/admin/feedback` (guarded by `has_role('admin')`) with filters, status (new/triaged/resolved), and CSV export.
 
-### Routes
-```
-/                              landing (mission + CTA to sign up)
-/auth                          sign in / sign up + role select
-/_authenticated/dashboard      role-aware home (founder vs mentor)
-/_authenticated/mentors        directory + filters (industry, expertise, free/paid)
-/_authenticated/mentors/$id    mentor profile + "Request mentorship" + "Book session"
-/_authenticated/requests       inbox of mentorship requests (mentor view) / sent (founder view)
-/_authenticated/sessions       upcoming + past sessions
-/_authenticated/messages       conversation list + thread (realtime)
-/_authenticated/grants         searchable grant directory (filters: amount, deadline, region)
-/_authenticated/grants/$id     grant detail
-/_authenticated/community      founder feed (posts, comments, likes)
-/_authenticated/community/$id  post thread
-/_authenticated/profile        edit own profile + mentor-specific fields
-```
+## 6. Engagement boosters
+- **Weekly digest email** (opt-in): new grants, top community posts, upcoming sessions. Cron-triggered server route under `/api/public/cron/*` using Lovable AI to summarize.
+- **Streaks & badges**: lightweight `user_activity` table; badges for first post, first mentor booked, 7-day streak. Surface on profile and dashboard.
+- **Weekly community prompt**: a pinned post auto-created Mondays ("This week's win?") to drive feed activity.
+- **Grant deadline reminders**: users can "save" a grant; in-app notification 7 days before deadline.
+- **Notifications center**: bell icon in the header, realtime via Supabase channels for new messages, request status changes, saved-grant reminders.
+- **Onboarding checklist** on the dashboard (complete profile → join community → request first mentor → save a grant) to drive first-week retention.
 
-### Server functions (`createServerFn` + `requireSupabaseAuth`)
-- mentor search/list, request mentorship, accept/decline, list requests
-- create/list sessions, cancel session
-- send/list messages (plus realtime channel subscription client-side)
-- grants list/search (public read), grant CRUD (admin)
-- posts CRUD, comments, likes
+## Technical notes
+- All new tables get GRANTs + RLS in the same migration; admin-only tables policy-gated via `has_role`.
+- AI calls go through Lovable AI Gateway server-side; `LOVABLE_API_KEY` already provisioned.
+- Companion + chat persistence reuses the `attachSupabaseAuth` middleware already wired in `src/start.ts`.
+- New routes added under `_authenticated/` inherit the existing auth gate; blog index/article are public for SEO.
 
-### Phasing
-1. Cloud + schema + auth + role selection + profile pages
-2. Mentor directory + profiles + request flow
-3. Scheduling (sessions) + messaging (realtime)
-4. Grants directory (seeded with ~10 real grants for Black women founders)
-5. Community feed
-6. Landing page polish + SEO metadata per route
-
-### Out of scope for MVP
-- Payments / paid bookings (rate is display-only)
-- Video calling (store external meeting link)
-- Email notifications (in-app only)
-- Mentor verification workflow (admin manually flips `verified`)
-
-Ready to build when you approve.
+## Open questions
+1. **Grants list** from the LinkedIn post — paste it, or want me to use a vetted 2026 fallback set?
+2. **AI companion name** — "Amara" is a placeholder; prefer something else?
+3. **Blog authoring** — admin-only, or open to mentors too?
