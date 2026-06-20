@@ -34,8 +34,8 @@ export const Route = createFileRoute("/api/chat")({
             auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
           },
         );
-        const { data: claims, error: authErr } = await supabase.auth.getClaims(token);
-        if (authErr || !claims?.claims?.sub) {
+        const { data: userData, error: authErr } = await supabase.auth.getUser(token);
+        if (authErr || !userData?.user?.id) {
           return new Response("Unauthorized", { status: 401 });
         }
 
