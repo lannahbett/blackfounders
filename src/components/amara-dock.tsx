@@ -14,7 +14,7 @@ const SUGGESTIONS = [
   "Help me sharpen my one-line pitch.",
 ];
 
-const PENDO_AGENT_ID = "UJSJEFSntQBANFCGNNaq2T5wTSQ";
+const PENDO_AGENT_ID = "JMxaEBPytiJPvKR1AWj6zJsgO-E";
 
 export function AmaraDock() {
   const [open, setOpen] = useState(false);
