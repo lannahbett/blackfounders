@@ -14,7 +14,7 @@ const SUGGESTIONS = [
   "Help me sharpen my one-line pitch.",
 ];
 
-const PENDO_AGENT_ID = "tNHDQO3wFO1z1CUcaG6JsVyBm7M";
+const PENDO_AGENT_ID = "UJSJEFSntQBANFCGNNaq2T5wTSQ";
 
 export function AmaraDock() {
   const [open, setOpen] = useState(false);
@@ -43,7 +43,7 @@ export function AmaraDock() {
   const { messages, sendMessage, status } = useChat({
     transport,
     onError: (err: Error) => toast.error(err.message || "Amara couldn't respond"),
-    onFinish: (message: UIMessage) => {
+    onFinish: ({ message }: { message: UIMessage }) => {
       const text = message.parts
         .map((p) => (p.type === "text" ? (p as { type: "text"; text: string }).text : ""))
         .join("");
