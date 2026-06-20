@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — Black Founders Hub" }] }),
@@ -59,7 +60,20 @@ function ProfilePage() {
 
   const saveProfile = useMutation({
     mutationFn: () => updateFn({ data: p }),
-    onSuccess: () => { toast.success("Profile saved"); qc.invalidateQueries({ queryKey: ["me"] }); },
+    onSuccess: () => {
+      pendoTrack("profile_updated", {
+        has_bio: !!p.bio,
+        has_headline: !!p.headline,
+        has_avatar_url: !!p.avatar_url,
+        has_linkedin_url: !!p.linkedin_url,
+        has_website: !!p.website,
+        industry: p.industry || null,
+        stage: p.stage || null,
+        location: p.location || null,
+      });
+      toast.success("Profile saved");
+      qc.invalidateQueries({ queryKey: ["me"] });
+    },
     onError: (e: any) => toast.error(e.message),
   });
   const saveMentor = useMutation({
@@ -71,12 +85,27 @@ function ProfilePage() {
       availability_note: m.availability_note,
       accepting_mentees: m.accepting_mentees,
     } }),
-    onSuccess: () => { toast.success("Mentor profile saved"); qc.invalidateQueries({ queryKey: ["me"] }); },
+    onSuccess: () => {
+      pendoTrack("mentor_profile_updated", {
+        expertise_count: m.expertise.split(",").map((s) => s.trim()).filter(Boolean).length,
+        industries_count: m.industries.split(",").map((s) => s.trim()).filter(Boolean).length,
+        years_experience: Number(m.years_experience) || null,
+        hourly_rate: Number(m.hourly_rate) || null,
+        accepting_mentees: m.accepting_mentees,
+        has_availability_note: !!m.availability_note,
+      });
+      toast.success("Mentor profile saved");
+      qc.invalidateQueries({ queryKey: ["me"] });
+    },
     onError: (e: any) => toast.error(e.message),
   });
   const becomeMentor = useMutation({
     mutationFn: () => roleFn({ data: { role: "mentor" } }),
-    onSuccess: () => { toast.success("You're now a mentor — fill in your details below."); qc.invalidateQueries({ queryKey: ["me"] }); },
+    onSuccess: () => {
+      pendoTrack("mentor_role_activated");
+      toast.success("You're now a mentor — fill in your details below.");
+      qc.invalidateQueries({ queryKey: ["me"] });
+    },
   });
 
   return (

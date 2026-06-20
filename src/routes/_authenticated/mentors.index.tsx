@@ -8,7 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AvatarPill } from "@/components/avatar-pill";
 import { Search, BadgeCheck } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/mentors/")({
   head: () => ({ meta: [{ title: "Mentors — Black Founders Hub" }] }),
@@ -21,6 +22,19 @@ function MentorsPage() {
   const [q, setQ] = useState("");
   const fn = useServerFn(listMentors);
   const { data = [] } = useQuery({ queryKey: ["mentors", q], queryFn: () => fn({ data: { q } }) });
+
+  const dataRef = useRef(data);
+  dataRef.current = data;
+  useEffect(() => {
+    if (!q.trim()) return;
+    const timer = setTimeout(() => {
+      pendoTrack("mentor_search_executed", {
+        query: q.trim(),
+        results_count: dataRef.current.length,
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [q]);
 
   return (
     <div>

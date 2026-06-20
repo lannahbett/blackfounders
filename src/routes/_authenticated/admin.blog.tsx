@@ -10,6 +10,7 @@ import { DataErrorState } from "@/components/data-error-state";
 import { Plus, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/admin/blog")({
   head: () => ({ meta: [{ title: "Blog admin" }] }),
@@ -25,7 +26,8 @@ function BlogAdmin() {
   const { data = [] } = useQuery({ queryKey: ["admin-posts"], queryFn: () => fn() });
   const del = useMutation({
     mutationFn: (id: string) => delFn({ data: { id } }),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
+      pendoTrack("blog_post_deleted", { post_id: id });
       toast.success("Deleted");
       qc.invalidateQueries({ queryKey: ["admin-posts"] });
     },

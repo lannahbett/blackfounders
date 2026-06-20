@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -57,11 +58,17 @@ function AuthPage() {
             .from("profiles")
             .upsert({ id: data.user.id, full_name: fullName });
         }
+        pendoTrack("account_created", {
+          role,
+          auth_method: "email",
+          has_session: !!data.session,
+        });
         if (data.session) navigate({ to: "/dashboard" });
         else toast.success("Account created. Check your inbox to confirm your email.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        pendoTrack("user_signed_in", { auth_method: "email" });
         navigate({ to: "/dashboard" });
       }
     } catch (err: any) {
@@ -76,6 +83,7 @@ function AuthPage() {
       redirect_uri: window.location.origin + "/dashboard",
     });
     if (result.error) toast.error("Google sign-in failed");
+    else pendoTrack("google_oauth_initiated", { auth_provider: "google" });
   }
 
   return (

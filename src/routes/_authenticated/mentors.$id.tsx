@@ -13,6 +13,7 @@ import { BadgeCheck, Globe, Linkedin, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { toast } from "sonner";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/mentors/$id")({
   head: () => ({ meta: [{ title: "Mentor — Black Founders Hub" }] }),
@@ -40,6 +41,10 @@ function MentorDetail() {
   const request = useMutation({
     mutationFn: () => reqFn({ data: { mentor_id: id, message: msg } }),
     onSuccess: () => {
+      pendoTrack("mentorship_request_sent", {
+        mentor_id: id,
+        message_length: msg.length,
+      });
       toast.success("Request sent");
       setMsg("");
       qc.invalidateQueries({ queryKey: ["requests"] });
@@ -51,6 +56,11 @@ function MentorDetail() {
     mutationFn: () =>
       bookFn({ data: { mentor_id: id, scheduled_at: new Date(when).toISOString(), duration_min: 30, meeting_link: link } }),
     onSuccess: () => {
+      pendoTrack("session_booked", {
+        mentor_id: id,
+        duration_min: 30,
+        has_meeting_link: !!link,
+      });
       toast.success("Session requested");
       qc.invalidateQueries({ queryKey: ["sessions"] });
       navigate({ to: "/sessions" });

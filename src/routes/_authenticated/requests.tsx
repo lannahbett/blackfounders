@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AvatarPill } from "@/components/avatar-pill";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({ meta: [{ title: "Mentorship requests" }] }),
@@ -27,7 +28,12 @@ function RequestsPage() {
 
   const m = useMutation({
     mutationFn: (v: { id: string; status: "accepted" | "declined" | "cancelled" }) => respondFn({ data: v }),
-    onSuccess: () => {
+    onSuccess: (_data, v) => {
+      pendoTrack("mentorship_request_responded", {
+        request_id: v.id,
+        response_status: v.status,
+        responder_role: v.status === "cancelled" ? "founder" : "mentor",
+      });
       toast.success("Updated");
       qc.invalidateQueries({ queryKey: ["requests"] });
     },

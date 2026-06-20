@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { AvatarPill } from "@/components/avatar-pill";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/messages/$id")({
   head: () => ({ meta: [{ title: "Conversation — Black Founders Hub" }] }),
@@ -48,6 +49,10 @@ function Thread() {
   const send = useMutation({
     mutationFn: () => sendFn({ data: { recipient_id: id, body } }),
     onSuccess: () => {
+      pendoTrack("message_sent", {
+        recipient_id: id,
+        message_length: body.length,
+      });
       setBody("");
       qc.invalidateQueries({ queryKey: ["thread", id] });
       qc.invalidateQueries({ queryKey: ["conversations"] });

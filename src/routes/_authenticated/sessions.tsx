@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AvatarPill } from "@/components/avatar-pill";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/sessions")({
   head: () => ({ meta: [{ title: "Sessions — Black Founders Hub" }] }),
@@ -26,7 +27,11 @@ function SessionsPage() {
   const { data = [] } = useQuery({ queryKey: ["sessions"], queryFn: () => fn() });
   const m = useMutation({
     mutationFn: (id: string) => cancelFn({ data: { id } }),
-    onSuccess: () => { toast.success("Cancelled"); qc.invalidateQueries({ queryKey: ["sessions"] }); },
+    onSuccess: (_data, id) => {
+      pendoTrack("session_cancelled", { session_id: id });
+      toast.success("Cancelled");
+      qc.invalidateQueries({ queryKey: ["sessions"] });
+    },
   });
 
   const now = Date.now();
