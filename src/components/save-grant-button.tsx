@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSavedGrants, toggleSavedGrant } from "@/lib/saved-grants.functions";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
+import { pendoTrack } from "@/lib/pendo";
 
 export function SaveGrantButton({ grantId, variant = "outline" }: { grantId: string; variant?: "outline" | "ghost" }) {
   const listFn = useServerFn(listSavedGrants);
@@ -12,7 +13,13 @@ export function SaveGrantButton({ grantId, variant = "outline" }: { grantId: str
   const isSaved = data.some((r: any) => r.grant_id === grantId);
   const mut = useMutation({
     mutationFn: () => toggleFn({ data: { grant_id: grantId } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["saved-grants"] }),
+    onSuccess: () => {
+      pendoTrack("grant_save_toggled", {
+        grant_id: grantId,
+        action: isSaved ? "unsaved" : "saved",
+      });
+      qc.invalidateQueries({ queryKey: ["saved-grants"] });
+    },
   });
   return (
     <Button

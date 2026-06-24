@@ -16,6 +16,7 @@ import { Heart, MessageCircle, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/community/")({
   head: () => ({ meta: [{ title: "Community — Black Founders Hub" }] }),
@@ -38,6 +39,11 @@ function Community() {
   const create = useMutation({
     mutationFn: () => createFn({ data: { title, body, tag } }),
     onSuccess: () => {
+      pendoTrack("community_post_created", {
+        tag,
+        title_length: title.length,
+        body_length: body.length,
+      });
       toast.success("Posted");
       setOpen(false); setTitle(""); setBody(""); setTag("ask");
       qc.invalidateQueries({ queryKey: ["posts"] });

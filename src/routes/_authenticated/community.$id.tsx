@@ -10,6 +10,7 @@ import { AvatarPill } from "@/components/avatar-pill";
 import { Heart } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/community/$id")({
   head: () => ({ meta: [{ title: "Post — Black Founders Hub" }] }),
@@ -29,11 +30,24 @@ function PostDetail() {
 
   const like = useMutation({
     mutationFn: () => likeFn({ data: { post_id: id } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["post", id] }),
+    onSuccess: () => {
+      pendoTrack("community_post_liked", {
+        post_id: id,
+        action: data?.liked ? "unliked" : "liked",
+      });
+      qc.invalidateQueries({ queryKey: ["post", id] });
+    },
   });
   const comment = useMutation({
     mutationFn: () => commentFn({ data: { post_id: id, body } }),
-    onSuccess: () => { setBody(""); qc.invalidateQueries({ queryKey: ["post", id] }); },
+    onSuccess: () => {
+      pendoTrack("community_comment_added", {
+        post_id: id,
+        comment_length: body.length,
+      });
+      setBody("");
+      qc.invalidateQueries({ queryKey: ["post", id] });
+    },
   });
 
   if (!data?.post) return <p>Loading…</p>;

@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { pendoTrack } from "@/lib/pendo";
 
 const SUGGESTIONS = [
   "What grants should I apply for first?",
@@ -50,6 +51,11 @@ export function AmaraDock() {
 
   async function send(text: string) {
     if (!text.trim() || isLoading) return;
+    pendoTrack("ai_chat_message_sent", {
+      message_length: text.trim().length,
+      is_suggestion: SUGGESTIONS.includes(text),
+      conversation_message_count: messages.length,
+    });
     setInput("");
     await sendMessage({ text: text.trim() });
   }

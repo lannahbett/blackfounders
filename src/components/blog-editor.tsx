@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/page-header";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { toast } from "sonner";
+import { pendoTrack } from "@/lib/pendo";
 
 type BlogPostInitial = {
   id: string;
@@ -66,7 +67,14 @@ export function BlogEditor({
           publish,
         },
       }),
-    onSuccess: () => {
+    onSuccess: (_data, publish) => {
+      pendoTrack(publish ? "blog_post_published" : "blog_post_draft_saved", {
+        slug: slug || slugify(title),
+        tag_count: tags.split(",").map((t) => t.trim()).filter(Boolean).length,
+        body_length: body.length,
+        has_cover_image: !!coverUrl,
+        is_new_post: !initial,
+      });
       toast.success("Saved");
       qc.invalidateQueries({ queryKey: ["admin-posts"] });
       qc.invalidateQueries({ queryKey: ["blog-posts"] });

@@ -22,6 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { submitFeedback } from "@/lib/feedback.functions";
 import { toast } from "sonner";
+import { pendoTrack } from "@/lib/pendo";
 
 export function FeedbackButton() {
   const [open, setOpen] = useState(false);
@@ -41,6 +42,12 @@ export function FeedbackButton() {
         },
       }),
     onSuccess: () => {
+      pendoTrack("feedback_submitted", {
+        category,
+        rating: rating || null,
+        message_length: message.length,
+        page_url: typeof window !== "undefined" ? window.location.pathname : null,
+      });
       toast.success("Thanks for the feedback 💛");
       setOpen(false);
       setMessage("");

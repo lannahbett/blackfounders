@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataErrorState } from "@/components/data-error-state";
 import { format } from "date-fns";
+import { pendoTrack } from "@/lib/pendo";
 
 export const Route = createFileRoute("/_authenticated/admin/feedback")({
   head: () => ({ meta: [{ title: "Feedback — Admin" }] }),
@@ -24,7 +25,13 @@ function AdminFeedback() {
   const update = useMutation({
     mutationFn: (vars: { id: string; status: "new" | "triaged" | "resolved" }) =>
       updateFn({ data: vars }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-feedback"] }),
+    onSuccess: (_data, vars) => {
+      pendoTrack("feedback_status_updated", {
+        feedback_id: vars.id,
+        new_status: vars.status,
+      });
+      qc.invalidateQueries({ queryKey: ["admin-feedback"] });
+    },
   });
 
   return (

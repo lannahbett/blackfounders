@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { pendoTrack } from "@/lib/pendo";
 import { SaveGrantButton } from "@/components/save-grant-button";
 import { DataErrorState } from "@/components/data-error-state";
 
@@ -23,6 +24,20 @@ function GrantsPage() {
   const [q, setQ] = useState("");
   const fn = useServerFn(listGrants);
   const { data = [] } = useQuery({ queryKey: ["grants", q], queryFn: () => fn({ data: { q } }) });
+
+  const dataRef = useRef(data);
+  dataRef.current = data;
+  useEffect(() => {
+    if (!q.trim()) return;
+    const timer = setTimeout(() => {
+      pendoTrack("grant_search_executed", {
+        query: q.trim(),
+        results_count: dataRef.current.length,
+      });
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [q]);
+
   return (
     <div>
       <PageHeader title="Grants & funding" description="Curated programs that actually fund Black women founders." />
