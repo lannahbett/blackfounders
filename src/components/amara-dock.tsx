@@ -14,11 +14,14 @@ const SUGGESTIONS = [
   "Help me sharpen my one-line pitch.",
 ];
 
+const PENDO_AGENT_ID = "JMxaEBPytiJPvKR1AWj6zJsgO-E";
+
 export function AmaraDock() {
   const [open, setOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const conversationId = useRef(crypto.randomUUID());
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setToken(data.session?.access_token ?? null));
@@ -40,6 +43,18 @@ export function AmaraDock() {
   const { messages, sendMessage, status } = useChat({
     transport,
     onError: (err: Error) => toast.error(err.message || "Amara couldn't respond"),
+    onFinish: ({ message }: { message: UIMessage }) => {
+      const text = message.parts
+        .map((p) => (p.type === "text" ? (p as { type: "text"; text: string }).text : ""))
+        .join("");
+      window.pendo?.trackAgent("agent_response", {
+        agentId: PENDO_AGENT_ID,
+        conversationId: conversationId.current,
+        messageId: message.id,
+        content: text,
+        modelUsed: "google/gemini-3-flash-preview",
+      });
+    },
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -48,9 +63,16 @@ export function AmaraDock() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, isLoading]);
 
-  async function send(text: string) {
+  async function send(text: string, suggestedPrompt = false) {
     if (!text.trim() || isLoading) return;
     setInput("");
+    window.pendo?.trackAgent("prompt", {
+      agentId: PENDO_AGENT_ID,
+      conversationId: conversationId.current,
+      messageId: crypto.randomUUID(),
+      content: text.trim(),
+      suggestedPrompt,
+    });
     await sendMessage({ text: text.trim() });
   }
 
@@ -91,7 +113,7 @@ export function AmaraDock() {
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
-                      onClick={() => send(s)}
+                      onClick={() => send(s, true)}
                       className="rounded-full border border-border bg-background px-3 py-1 text-xs text-foreground transition-colors hover:bg-secondary"
                     >
                       {s}
