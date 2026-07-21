@@ -19,6 +19,7 @@ export const Route = createFileRoute("/blog/$slug")({
   head: ({ loaderData }) => {
     const p = loaderData?.post;
     if (!p) return { meta: [{ title: "Article — Black Founders Hub" }] };
+    const url = `https://blackfounders.lovable.app/blog/${p.slug}`;
     return {
       meta: [
         { title: `${p.title} — Black Founders Hub` },
@@ -27,7 +28,9 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:description", content: p.excerpt ?? "" },
         ...(p.cover_url ? [{ property: "og:image", content: p.cover_url }] : []),
         { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   errorComponent: ({ error, reset }) => <DataErrorState error={error} reset={reset} />,
