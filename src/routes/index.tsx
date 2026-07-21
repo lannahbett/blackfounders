@@ -6,11 +6,13 @@ import { Sparkles, Users, BookOpenCheck, MessagesSquare, ArrowRight } from "luci
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Black Founders Hub — Mentors, Grants & Community for Black Women Founders" },
+      { title: "Black Founders Hub — Mentors, Grants & Community" },
       { name: "description", content: "Connect with verified mentors, discover grants made for you, and join a community of Black Women Founders building the future." },
-      { property: "og:title", content: "Black Founders Hub" },
+      { property: "og:title", content: "Black Founders Hub — Mentors & Community" },
       { property: "og:description", content: "Mentors, grants and community for Black Women Founders." },
+      { property: "og:url", content: "https://blackfounders.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://blackfounders.lovable.app/" }],
   }),
   component: Index,
 });
@@ -31,6 +33,7 @@ function Index() {
         </nav>
       </header>
 
+      <main>
       <section className="mx-auto max-w-6xl px-6 pt-10 pb-24 md:pt-20 md:pb-32">
         <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
           <Sparkles className="h-3.5 w-3.5 text-[color:var(--gold)]" /> Built for Black women & nonbinary founders
@@ -65,7 +68,7 @@ function Index() {
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-[color:var(--gold)]/20 text-[color:var(--gold)]">
                 <Icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 font-serif text-xl font-semibold">{title}</h3>
+              <h2 className="mt-4 font-serif text-xl font-semibold">{title}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{body}</p>
             </div>
           ))}
@@ -79,6 +82,7 @@ function Index() {
           <Link to="/auth">Create your free account</Link>
         </Button>
       </section>
+      </main>
 
       <footer className="border-t border-border bg-card">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted-foreground">
