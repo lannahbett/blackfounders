@@ -1,0 +1,11 @@
+# Black Founders Hub
+
+> A platform connecting Black Women Founders with verified mentors, grant opportunities, and a community that gets it.
+
+Black Founders Hub helps Black women and nonbinary founders close the funding and opportunity gap through mentor matching, a curated grant directory, and a founder community.
+
+## Pages
+
+- [Home](/): Overview of mentors, grants, and community.
+- [Blog](/blog): Stories, playbooks, and lessons for Black women founders.
+- [Sign in](/auth): Join the hub as a founder or mentor.
