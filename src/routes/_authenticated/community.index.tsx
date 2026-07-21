@@ -18,7 +18,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/community/")({
-  head: () => ({ meta: [{ title: "Community — Black Founders Hub" }] }),
+  head: () => ({
+    meta: [
+      { title: "Community — Black Founders Hub" },
+      { name: "description", content: "Share wins, asks, and resources with fellow Black Women Founders in the community feed." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   errorComponent: ({ error }) => <p className="text-destructive">{error.message}</p>,
   notFoundComponent: () => <p>Not found</p>,
   component: Community,
