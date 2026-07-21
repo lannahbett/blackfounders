@@ -10,7 +10,13 @@ import { DataErrorState } from "@/components/data-error-state";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Black Founders Hub" }] }),
+  head: () => ({
+    meta: [
+      { title: "Dashboard — Black Founders Hub" },
+      { name: "description", content: "Your founder home base: track mentor requests, upcoming sessions, and saved grants." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   errorComponent: ({ error, reset }) => <DataErrorState error={error} reset={reset} />,
   notFoundComponent: () => <p>Not found</p>,
   component: Dashboard,
