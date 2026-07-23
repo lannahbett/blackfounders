@@ -7,14 +7,11 @@ import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-const SUGGESTIONS = [
-  "What grants should I apply for first?",
-  "How do I write a cold intro to a mentor?",
-  "Help me sharpen my one-line pitch.",
-];
+import { useLocale } from "@/i18n";
 
 export function AmaraDock() {
+  const { t, lang } = useLocale();
+  const SUGGESTIONS = [t.amara.suggestion1, t.amara.suggestion2, t.amara.suggestion3];
   const [open, setOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -33,13 +30,14 @@ export function AmaraDock() {
       new DefaultChatTransport({
         api: "/api/chat",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: { lang },
       }),
-    [token],
+    [token, lang],
   );
 
   const { messages, sendMessage, status } = useChat({
     transport,
-    onError: (err: Error) => toast.error(err.message || "Amara couldn't respond"),
+    onError: (err: Error) => toast.error(err.message || t.amara.couldntRespond),
   });
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -58,7 +56,7 @@ export function AmaraDock() {
     <>
       {!open && (
         <button
-          aria-label="Open Amara, your AI companion"
+          aria-label={t.amara.aria}
           onClick={() => setOpen(true)}
           className="fixed bottom-5 right-5 z-50 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105"
         >
@@ -74,10 +72,10 @@ export function AmaraDock() {
               </div>
               <div>
                 <p className="font-serif text-base font-semibold leading-tight">Amara</p>
-                <p className="text-xs text-muted-foreground">Your founder companion</p>
+                <p className="text-xs text-muted-foreground">{t.amara.subtitle}</p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label="Close">
+            <Button variant="ghost" size="icon" onClick={() => setOpen(false)} aria-label={t.amara.close}>
               <X className="h-4 w-4" />
             </Button>
           </header>
@@ -85,7 +83,7 @@ export function AmaraDock() {
             {messages.length === 0 && (
               <div className="space-y-3">
                 <p className="text-muted-foreground">
-                  Hi 👋 I'm Amara. Ask me about grants, mentors, pitching, or anything founder-life.
+                  {t.amara.greeting}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {SUGGESTIONS.map((s) => (
@@ -127,7 +125,7 @@ export function AmaraDock() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask Amara…"
+              placeholder={t.amara.inputPlaceholder}
               disabled={isLoading}
               className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-accent disabled:opacity-60"
             />

@@ -16,6 +16,12 @@ Your job:
 
 Keep replies tight (under ~180 words) unless the user asks for depth.`;
 
+function langInstruction(lang: string | undefined): string {
+  if (lang === "pt-BR") return "\n\nReply in Brazilian Portuguese (pt-BR), matching the founder's voice.";
+  if (lang === "es") return "\n\nReply in neutral Latin-American Spanish, matching the founder's voice.";
+  return "\n\nReply in English.";
+}
+
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
@@ -42,9 +48,9 @@ export const Route = createFileRoute("/api/chat")({
         const key = process.env.LOVABLE_API_KEY;
         if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
 
-        let body: { messages?: UIMessage[] };
+        let body: { messages?: UIMessage[]; lang?: string };
         try {
-          body = (await request.json()) as { messages?: UIMessage[] };
+          body = (await request.json()) as { messages?: UIMessage[]; lang?: string };
         } catch {
           return new Response("Invalid JSON", { status: 400 });
         }
@@ -56,7 +62,7 @@ export const Route = createFileRoute("/api/chat")({
           const gateway = createLovableAiGatewayProvider(key);
           const result = streamText({
             model: gateway("google/gemini-3-flash-preview"),
-            system: SYSTEM_PROMPT,
+            system: SYSTEM_PROMPT + langInstruction(body.lang),
             messages: await convertToModelMessages(body.messages),
           });
           return result.toUIMessageStreamResponse({ originalMessages: body.messages });

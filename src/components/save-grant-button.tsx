@@ -3,8 +3,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSavedGrants, toggleSavedGrant } from "@/lib/saved-grants.functions";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
+import { useLocale } from "@/i18n";
 
 export function SaveGrantButton({ grantId, variant = "outline" }: { grantId: string; variant?: "outline" | "ghost" }) {
+  const { t } = useLocale();
   const listFn = useServerFn(listSavedGrants);
   const toggleFn = useServerFn(toggleSavedGrant);
   const qc = useQueryClient();
@@ -27,11 +29,11 @@ export function SaveGrantButton({ grantId, variant = "outline" }: { grantId: str
     >
       {isSaved ? (
         <>
-          <BookmarkCheck className="mr-2 h-4 w-4" /> Saved
+          <BookmarkCheck className="mr-2 h-4 w-4" /> {t.grants.saved}
         </>
       ) : (
         <>
-          <Bookmark className="mr-2 h-4 w-4" /> Save
+          <Bookmark className="mr-2 h-4 w-4" /> {t.grants.save}
         </>
       )}
     </Button>

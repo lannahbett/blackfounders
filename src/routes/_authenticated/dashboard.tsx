@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, Calendar, CheckCircle2, Circle, Inbox, Sparkles } from "lucide-react";
 import { DataErrorState } from "@/components/data-error-state";
 import { format } from "date-fns";
+import { useLocale, tFormat } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -23,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function Dashboard() {
+  const { t } = useLocale();
   const meFn = useServerFn(getMe);
   const requestsFn = useServerFn(listRequests);
   const sessionsFn = useServerFn(listSessions);
@@ -44,13 +46,13 @@ function Dashboard() {
 
   const checklist = [
     {
-      label: "Complete your profile",
+      label: t.dashboard.checkCompleteProfile,
       done: !!(me?.profile?.full_name && me?.profile?.bio),
       href: "/profile",
     },
-    { label: "Save your first grant", done: saved.length > 0, href: "/grants" },
-    { label: "Send your first mentor request", done: requests.length > 0, href: "/mentors" },
-    { label: "Book your first session", done: sessions.length > 0, href: "/sessions" },
+    { label: t.dashboard.checkSaveGrant, done: saved.length > 0, href: "/grants" },
+    { label: t.dashboard.checkSendRequest, done: requests.length > 0, href: "/mentors" },
+    { label: t.dashboard.checkBookSession, done: sessions.length > 0, href: "/sessions" },
   ];
   const doneCount = checklist.filter((i) => i.done).length;
   const allDone = doneCount === checklist.length;
@@ -58,17 +60,17 @@ function Dashboard() {
   return (
     <div>
       <PageHeader
-        title={`Hi${me?.profile?.full_name ? `, ${me.profile.full_name.split(" ")[0]}` : ""} 👋`}
-        description={isMentor ? "Your founders are waiting." : "Let's keep building."}
+        title={`${t.dashboard.greeting}${me?.profile?.full_name ? `, ${me.profile.full_name.split(" ")[0]}` : ""} 👋`}
+        description={isMentor ? t.dashboard.subMentor : t.dashboard.subFounder}
       />
 
       {!allDone && (
         <Card className="mb-8 p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="font-serif text-lg font-semibold">Get the most from the hub</h3>
+              <h3 className="font-serif text-lg font-semibold">{t.dashboard.checklistTitle}</h3>
               <p className="text-xs text-muted-foreground">
-                {doneCount} of {checklist.length} done
+                {tFormat(t.dashboard.checklistProgress, { done: doneCount, total: checklist.length })}
               </p>
             </div>
             <div className="h-2 w-32 overflow-hidden rounded-full bg-secondary">
@@ -102,24 +104,24 @@ function Dashboard() {
 
       <div className="grid gap-5 md:grid-cols-3">
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Inbox className="h-4 w-4" /> Pending requests</div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Inbox className="h-4 w-4" /> {t.dashboard.pendingRequests}</div>
           <p className="mt-2 font-serif text-3xl">{pendingForMe.length}</p>
-          <Link to="/requests" className="mt-3 inline-flex items-center text-sm text-accent">View all <ArrowRight className="ml-1 h-3 w-3" /></Link>
+          <Link to="/requests" className="mt-3 inline-flex items-center text-sm text-accent">{t.dashboard.viewAll} <ArrowRight className="ml-1 h-3 w-3" /></Link>
         </Card>
         <Card className="p-5">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Calendar className="h-4 w-4" /> Upcoming sessions</div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground"><Calendar className="h-4 w-4" /> {t.dashboard.upcomingSessions}</div>
           <p className="mt-2 font-serif text-3xl">{upcoming.length}</p>
-          <Link to="/sessions" className="mt-3 inline-flex items-center text-sm text-accent">Schedule <ArrowRight className="ml-1 h-3 w-3" /></Link>
+          <Link to="/sessions" className="mt-3 inline-flex items-center text-sm text-accent">{t.dashboard.schedule} <ArrowRight className="ml-1 h-3 w-3" /></Link>
         </Card>
         <Card className="p-5 bg-primary text-primary-foreground">
-          <div className="flex items-center gap-2 text-sm opacity-80"><Sparkles className="h-4 w-4 text-[color:var(--gold)]" /> New grants this week</div>
+          <div className="flex items-center gap-2 text-sm opacity-80"><Sparkles className="h-4 w-4 text-[color:var(--gold)]" /> {t.dashboard.newGrants}</div>
           <p className="mt-2 font-serif text-3xl">{grants.length}</p>
-          <Link to="/grants" className="mt-3 inline-flex items-center text-sm text-[color:var(--gold)]">Explore <ArrowRight className="ml-1 h-3 w-3" /></Link>
+          <Link to="/grants" className="mt-3 inline-flex items-center text-sm text-[color:var(--gold)]">{t.dashboard.explore} <ArrowRight className="ml-1 h-3 w-3" /></Link>
         </Card>
       </div>
 
       <section className="mt-10">
-        <h2 className="font-serif text-xl font-semibold">Featured grants</h2>
+        <h2 className="font-serif text-xl font-semibold">{t.dashboard.featuredGrants}</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {featuredGrants.map((g: any) => (
             <Card key={g.id} className="p-5">
@@ -127,12 +129,12 @@ function Dashboard() {
               <h3 className="mt-1 font-serif text-lg font-semibold">{g.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{g.description}</p>
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-sm font-medium text-accent">{g.amount ?? "Varies"}</span>
+                <span className="text-sm font-medium text-accent">{g.amount ?? t.common.varies}</span>
                 {g.deadline ? (
                   <span className="text-xs text-muted-foreground">{format(new Date(g.deadline), "MMM d, yyyy")}</span>
                 ) : null}
               </div>
-              <Link to="/grants/$id" params={{ id: g.id }} className="mt-3 inline-flex text-sm text-accent">Open →</Link>
+              <Link to="/grants/$id" params={{ id: g.id }} className="mt-3 inline-flex text-sm text-accent">{t.common.open} →</Link>
             </Card>
           ))}
         </div>

@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { AvatarPill } from "@/components/avatar-pill";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { useLocale } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/messages/")({
   head: () => ({ meta: [{ title: "Messages — Black Founders Hub" }] }),
@@ -16,12 +17,13 @@ export const Route = createFileRoute("/_authenticated/messages/")({
 });
 
 function MessagesIndex() {
+  const { t } = useLocale();
   const fn = useServerFn(listConversations);
   const { data = [] } = useQuery({ queryKey: ["conversations"], queryFn: () => fn() });
   return (
     <div>
-      <PageHeader title="Messages" />
-      {data.length === 0 ? <p className="text-muted-foreground">No conversations yet. Start one from a mentor's profile.</p> : (
+      <PageHeader title={t.messages.title} />
+      {data.length === 0 ? <p className="text-muted-foreground">{t.messages.empty}</p> : (
         <div className="space-y-3">
           {data.map((c: any) => (
             <Link key={c.other_id} to="/messages/$id" params={{ id: c.other_id }}>
@@ -29,7 +31,7 @@ function MessagesIndex() {
                 <AvatarPill name={c.other_profile?.full_name} src={c.other_profile?.avatar_url} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate font-medium">{c.other_profile?.full_name ?? "Unknown"}</p>
+                    <p className="truncate font-medium">{c.other_profile?.full_name ?? t.messages.unknown}</p>
                     <p className="shrink-0 text-xs text-muted-foreground">{formatDistanceToNow(new Date(c.last_at), { addSuffix: true })}</p>
                   </div>
                   <p className="truncate text-sm text-muted-foreground">{c.last_message}</p>

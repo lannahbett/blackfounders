@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { DataErrorState } from "@/components/data-error-state";
+import { useLocale } from "@/i18n";
+import { LanguageSwitcher } from "@/i18n/LanguageSwitcher";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -31,24 +33,28 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndex() {
+  const { t } = useLocale();
   const fn = useServerFn(listPublishedPosts);
   const { data = [] } = useQuery({ queryKey: ["blog-posts"], queryFn: () => fn() });
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="mx-auto max-w-4xl px-6 py-10">
-          <Link to="/" className="text-xs uppercase tracking-widest text-accent">
-            ← Black Founders Hub
-          </Link>
-          <h1 className="mt-3 font-serif text-4xl font-semibold md:text-5xl">The Blog</h1>
+          <div className="flex items-center justify-between gap-3">
+            <Link to="/" className="text-xs uppercase tracking-widest text-accent">
+              {t.blog.backBrand}
+            </Link>
+            <LanguageSwitcher />
+          </div>
+          <h1 className="mt-3 font-serif text-4xl font-semibold md:text-5xl">{t.blog.heading}</h1>
           <p className="mt-3 max-w-2xl text-muted-foreground">
-            Stories, playbooks, and unfiltered lessons from Black women building.
+            {t.blog.lede}
           </p>
         </div>
       </header>
       <main className="mx-auto max-w-4xl px-6 py-10">
         {data.length === 0 ? (
-          <p className="text-muted-foreground">No posts yet. Check back soon.</p>
+          <p className="text-muted-foreground">{t.blog.empty}</p>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             {data.map((p: any) => (
