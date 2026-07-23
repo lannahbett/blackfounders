@@ -79,18 +79,30 @@ export const upsertMentorProfile = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    // Calls SECURITY DEFINER RPC that grants the mentor role + creates an unverified profile.
+    const { userId } = context;
+    // Use the admin client to grant the mentor role + create an unverified profile.
     // Admin must flip `verified` before the mentor is treated as vetted.
-    const { error } = await supabase.rpc("apply_for_mentor", {
-      _expertise: data.expertise,
-      _industries: data.industries,
-      _years_experience: data.years_experience ?? null,
-      _hourly_rate: data.hourly_rate ?? null,
-      _availability_note: data.availability_note ?? null,
-      _accepting_mentees: data.accepting_mentees,
-    } as never);
-    if (error) throw new Error(error.message);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: roleErr } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: userId, role: "mentor" }, { onConflict: "user_id,role" });
+    if (roleErr) throw new Error(roleErr.message);
+    const { error: profErr } = await supabaseAdmin
+      .from("mentor_profiles")
+      .upsert(
+        {
+          user_id: userId,
+          expertise: data.expertise,
+          industries: data.industries,
+          years_experience: data.years_experience ?? null,
+          hourly_rate: data.hourly_rate ?? null,
+          availability_note: data.availability_note ?? null,
+          accepting_mentees: data.accepting_mentees,
+          verified: false,
+        },
+        { onConflict: "user_id" },
+      );
+    if (profErr) throw new Error(profErr.message);
     return { ok: true };
   });
 
