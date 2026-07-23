@@ -592,24 +592,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      apply_for_mentor: {
-        Args: {
-          _accepting_mentees: boolean
-          _availability_note: string
-          _expertise: string[]
-          _hourly_rate: number
-          _industries: string[]
-          _years_experience: number
-        }
-        Returns: undefined
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       app_role: "founder" | "mentor" | "admin"
