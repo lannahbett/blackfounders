@@ -87,7 +87,17 @@ function Index() {
       <footer className="border-t border-border bg-card">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-sm text-muted-foreground">
           <span>© {new Date().getFullYear()} Black Founders Hub</span>
-          <span>Made with care 🌻</span>
+          <span>
+            Feito com propósito por{" "}
+            <a
+              href="https://lannaraportfolio.lovable.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-[#7c3aed] hover:underline"
+            >
+              Lannara Silva
+            </a>
+          </span>
         </div>
       </footer>
     </div>
