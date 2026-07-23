@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AvatarPill } from "@/components/avatar-pill";
 import { Search, BadgeCheck } from "lucide-react";
 import { useState } from "react";
+import { useLocale } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/mentors/")({
   head: () => ({ meta: [{ title: "Mentors — Black Founders Hub" }] }),
@@ -18,25 +19,26 @@ export const Route = createFileRoute("/_authenticated/mentors/")({
 });
 
 function MentorsPage() {
+  const { t } = useLocale();
   const [q, setQ] = useState("");
   const fn = useServerFn(listMentors);
   const { data = [] } = useQuery({ queryKey: ["mentors", q], queryFn: () => fn({ data: { q } }) });
 
   return (
     <div>
-      <PageHeader title="Find a mentor" description="Verified mentors who've built, raised, and scaled." />
+      <PageHeader title={t.mentors.title} description={t.mentors.description} />
       <div className="relative mb-6">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by name, industry, or expertise"
+          placeholder={t.mentors.searchPlaceholder}
           className="pl-9"
         />
       </div>
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No mentors yet. Be the first to{" "}
-          <Link to="/profile" className="text-accent underline">become one</Link>.
+        <p className="text-muted-foreground">{t.mentors.empty}{" "}
+          <Link to="/profile" className="text-accent underline">{t.mentors.emptyLinkText}</Link>.
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
@@ -46,7 +48,7 @@ function MentorsPage() {
                 <AvatarPill name={m.profile?.full_name} src={m.profile?.avatar_url} size="lg" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="truncate font-serif text-lg font-semibold">{m.profile?.full_name ?? "Mentor"}</h3>
+                    <h3 className="truncate font-serif text-lg font-semibold">{m.profile?.full_name ?? t.mentors.unnamed}</h3>
                     {m.verified ? <BadgeCheck className="h-4 w-4 text-accent" /> : null}
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-1">{m.profile?.headline ?? m.profile?.industry}</p>

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AvatarPill } from "@/components/avatar-pill";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useLocale } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/sessions")({
   head: () => ({ meta: [{ title: "Sessions — Black Founders Hub" }] }),
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/sessions")({
 });
 
 function SessionsPage() {
+  const { t } = useLocale();
   const qc = useQueryClient();
   const meFn = useServerFn(getMe);
   const fn = useServerFn(listSessions);
@@ -26,7 +28,7 @@ function SessionsPage() {
   const { data = [] } = useQuery({ queryKey: ["sessions"], queryFn: () => fn() });
   const m = useMutation({
     mutationFn: (id: string) => cancelFn({ data: { id } }),
-    onSuccess: () => { toast.success("Cancelled"); qc.invalidateQueries({ queryKey: ["sessions"] }); },
+    onSuccess: () => { toast.success(t.sessions.cancelled); qc.invalidateQueries({ queryKey: ["sessions"] }); },
   });
 
   const now = Date.now();
@@ -35,35 +37,35 @@ function SessionsPage() {
 
   return (
     <div>
-      <PageHeader title="Sessions" description="Your 1:1s with mentors and founders." />
-      <Section title="Upcoming" items={upcoming} meId={me?.userId} onCancel={(id) => m.mutate(id)} />
-      <Section title="Past & cancelled" items={past} meId={me?.userId} muted />
+      <PageHeader title={t.sessions.title} description={t.sessions.description} />
+      <Section title={t.sessions.upcoming} items={upcoming} meId={me?.userId} onCancel={(id) => m.mutate(id)} labels={t.sessions} />
+      <Section title={t.sessions.pastCancelled} items={past} meId={me?.userId} muted labels={t.sessions} />
     </div>
   );
 }
 
 function Section({
-  title, items, meId, onCancel, muted,
-}: { title: string; items: any[]; meId?: string; onCancel?: (id: string) => void; muted?: boolean }) {
+  title, items, meId, onCancel, muted, labels,
+}: { title: string; items: any[]; meId?: string; onCancel?: (id: string) => void; muted?: boolean; labels: any }) {
   return (
     <section className="mt-8">
       <h2 className="font-serif text-xl font-semibold">{title}</h2>
       <div className="mt-3 space-y-3">
-        {items.length === 0 ? <p className="text-sm text-muted-foreground">Nothing here.</p> : null}
+        {items.length === 0 ? <p className="text-sm text-muted-foreground">{labels.nothing}</p> : null}
         {items.map((s) => {
           const other = s.mentor_id === meId ? s.founder : s.mentor;
-          const otherLabel = s.mentor_id === meId ? "with founder" : "with mentor";
+          const otherLabel = s.mentor_id === meId ? labels.withFounder : labels.withMentor;
           return (
             <Card key={s.id} className={`flex flex-wrap items-center gap-4 p-5 ${muted ? "opacity-80" : ""}`}>
               <AvatarPill name={other?.full_name} src={other?.avatar_url} />
               <div className="min-w-0 flex-1">
                 <p className="font-medium">{format(new Date(s.scheduled_at), "EEE, MMM d • h:mm a")}</p>
-                <p className="text-sm text-muted-foreground">{otherLabel} {other?.full_name} · {s.duration_min} min</p>
-                {s.meeting_link ? <a href={s.meeting_link} target="_blank" rel="noreferrer" className="text-sm text-accent">Join link →</a> : null}
+                <p className="text-sm text-muted-foreground">{otherLabel} {other?.full_name} · {s.duration_min} {labels.minutes}</p>
+                {s.meeting_link ? <a href={s.meeting_link} target="_blank" rel="noreferrer" className="text-sm text-accent">{labels.joinLink}</a> : null}
               </div>
               <Badge variant={s.status === "scheduled" ? "default" : "outline"}>{s.status}</Badge>
               {onCancel && s.status === "scheduled" ? (
-                <Button size="sm" variant="outline" onClick={() => onCancel(s.id)}>Cancel</Button>
+                <Button size="sm" variant="outline" onClick={() => onCancel(s.id)}>{labels.cancel}</Button>
               ) : null}
             </Card>
           );

@@ -22,8 +22,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { submitFeedback } from "@/lib/feedback.functions";
 import { toast } from "sonner";
+import { useLocale } from "@/i18n";
 
 export function FeedbackButton() {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<"bug" | "idea" | "love" | "other">("idea");
   const [rating, setRating] = useState<number>(0);
@@ -41,12 +43,12 @@ export function FeedbackButton() {
         },
       }),
     onSuccess: () => {
-      toast.success("Thanks for the feedback 💛");
+      toast.success(t.feedback.thanks);
       setOpen(false);
       setMessage("");
       setRating(0);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't send feedback"),
+    onError: (e) => toast.error(e instanceof Error ? e.message : t.feedback.error),
   });
 
   return (
@@ -54,35 +56,33 @@ export function FeedbackButton() {
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm shadow-md transition-colors hover:bg-secondary md:inline-flex"
-        aria-label="Send feedback"
+        aria-label={t.feedback.open}
       >
-        <MessageSquarePlus className="h-4 w-4 text-accent" /> Feedback
+        <MessageSquarePlus className="h-4 w-4 text-accent" /> {t.feedback.label}
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-serif">Help us make it better</DialogTitle>
-            <DialogDescription>
-              Bug, idea, love note — we read everything.
-            </DialogDescription>
+            <DialogTitle className="font-serif">{t.feedback.dialogTitle}</DialogTitle>
+            <DialogDescription>{t.feedback.dialogDesc}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="mb-1.5 block text-xs">Category</Label>
+              <Label className="mb-1.5 block text-xs">{t.feedback.category}</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as typeof category)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="idea">💡 Idea</SelectItem>
-                  <SelectItem value="bug">🐞 Bug</SelectItem>
-                  <SelectItem value="love">💛 Love</SelectItem>
-                  <SelectItem value="other">✨ Other</SelectItem>
+                  <SelectItem value="idea">{t.feedback.catIdea}</SelectItem>
+                  <SelectItem value="bug">{t.feedback.catBug}</SelectItem>
+                  <SelectItem value="love">{t.feedback.catLove}</SelectItem>
+                  <SelectItem value="other">{t.feedback.catOther}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="mb-1.5 block text-xs">How are we doing? (optional)</Label>
+              <Label className="mb-1.5 block text-xs">{t.feedback.rating}</Label>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
@@ -102,12 +102,12 @@ export function FeedbackButton() {
               </div>
             </div>
             <div>
-              <Label className="mb-1.5 block text-xs">Your feedback</Label>
+              <Label className="mb-1.5 block text-xs">{t.feedback.yourFeedback}</Label>
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
                 rows={4}
-                placeholder="Tell us what you think…"
+                placeholder={t.feedback.placeholder}
               />
               <p className="mt-1 text-right text-xs text-muted-foreground">
                 {message.length}/2000
@@ -116,13 +116,13 @@ export function FeedbackButton() {
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)}>
-              Cancel
+              {t.feedback.cancel}
             </Button>
             <Button
               onClick={() => mutation.mutate()}
               disabled={mutation.isPending || message.trim().length < 3}
             >
-              {mutation.isPending ? "Sending…" : "Send feedback"}
+              {mutation.isPending ? t.feedback.sending : t.feedback.submit}
             </Button>
           </DialogFooter>
         </DialogContent>

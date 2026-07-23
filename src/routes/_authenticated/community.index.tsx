@@ -16,6 +16,7 @@ import { Heart, MessageCircle, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useLocale } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/community/")({
   head: () => ({
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/community/")({
 });
 
 function Community() {
+  const { t } = useLocale();
   const qc = useQueryClient();
   const fn = useServerFn(listPosts);
   const createFn = useServerFn(createPost);
@@ -44,7 +46,7 @@ function Community() {
   const create = useMutation({
     mutationFn: () => createFn({ data: { title, body, tag } }),
     onSuccess: () => {
-      toast.success("Posted");
+      toast.success(t.community.posted);
       setOpen(false); setTitle(""); setBody(""); setTag("ask");
       qc.invalidateQueries({ queryKey: ["posts"] });
     },
@@ -54,39 +56,39 @@ function Community() {
   return (
     <div>
       <PageHeader
-        title="Community"
-        description="Asks, wins, resources, and intros from founders building alongside you."
+        title={t.community.title}
+        description={t.community.description}
         action={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="mr-1 h-4 w-4" />New post</Button>
+              <Button className="bg-accent text-accent-foreground hover:bg-accent/90"><Plus className="mr-1 h-4 w-4" />{t.community.newPost}</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Share with the community</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>{t.community.dialogTitle}</DialogTitle></DialogHeader>
               <div className="space-y-3">
                 <div>
-                  <Label htmlFor="t">Title</Label>
+                  <Label htmlFor="t">{t.community.postTitle}</Label>
                   <Input id="t" value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>
                 <div>
-                  <Label>Type</Label>
+                  <Label>{t.community.type}</Label>
                   <Select value={tag} onValueChange={(v) => setTag(v as any)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ask">Ask</SelectItem>
-                      <SelectItem value="win">Win</SelectItem>
-                      <SelectItem value="resource">Resource</SelectItem>
-                      <SelectItem value="intro">Intro</SelectItem>
+                      <SelectItem value="ask">{t.community.tagAsk}</SelectItem>
+                      <SelectItem value="win">{t.community.tagWin}</SelectItem>
+                      <SelectItem value="resource">{t.community.tagResource}</SelectItem>
+                      <SelectItem value="intro">{t.community.tagIntro}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="b">Body</Label>
+                  <Label htmlFor="b">{t.community.body}</Label>
                   <Textarea id="b" rows={6} value={body} onChange={(e) => setBody(e.target.value)} />
                 </div>
               </div>
               <DialogFooter>
-                <Button disabled={title.length < 3 || body.length < 5 || create.isPending} onClick={() => create.mutate()}>Post</Button>
+                <Button disabled={title.length < 3 || body.length < 5 || create.isPending} onClick={() => create.mutate()}>{t.community.post}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -94,14 +96,14 @@ function Community() {
       />
 
       <div className="space-y-4">
-        {data.length === 0 ? <p className="text-muted-foreground">No posts yet. Be the first to share!</p> : null}
+        {data.length === 0 ? <p className="text-muted-foreground">{t.community.empty}</p> : null}
         {data.map((p: any) => (
           <Link key={p.id} to="/community/$id" params={{ id: p.id }}>
             <Card className="p-5 transition-colors hover:border-accent">
               <div className="flex items-center gap-3">
                 <AvatarPill name={p.author?.full_name} src={p.author?.avatar_url} size="sm" />
                 <div className="min-w-0">
-                  <p className="text-sm font-medium">{p.author?.full_name ?? "Anonymous"}</p>
+                  <p className="text-sm font-medium">{p.author?.full_name ?? t.community.anonymous}</p>
                   <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(p.created_at), { addSuffix: true })}</p>
                 </div>
                 <Badge variant="outline" className="ml-auto capitalize">{p.tag}</Badge>
