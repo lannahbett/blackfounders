@@ -1,78 +1,70 @@
-# Multilingual support: EN / pt-BR / es
-
-Make every static UI string translatable across all routes and components, add a language switcher, and clean up wording along the way.
-
 ## Scope
 
-**Translated (static UI):**
-- Public routes: landing (`/`), auth, blog list & post, root layout, 404 / error boundaries.
-- Authenticated routes: dashboard, mentors (list + profile), grants (list + detail), community (feed + thread), messages, sessions, requests, profile, admin (blog + feedback).
-- Components: `amara-dock`, `feedback-button`, `save-grant-button`, `page-header`, `blog-editor`, `data-error-state`, `avatar-pill`, all shared UI copy.
-- Toasts, form labels, placeholders, buttons, empty states, error messages.
-- SEO `head()` per route (title, description, og:title, og:description) — one set per language.
+Redesign only the public surfaces: `/` (landing) and `/auth`. Authenticated app pages, business logic, i18n keys, and routes stay unchanged.
 
-**Not translated (user-generated / data):**
-- Blog post bodies, grant descriptions, mentor bios, community posts and comments, chat messages. These stay in whatever language the author wrote them.
-- Grants seed data — kept as originally sourced (English).
-- Amara replies — the system prompt is updated to reply in the user's active UI language, so answers follow the switch automatically.
+## Design tokens (locked)
 
-## User experience
+- Palette: paper `#fdfbf7`, espresso `#6b3a2a`, sienna `#a0522d`, copper `#cd7f32`, gold `#e8c07a`
+- Type: Syne (700/800) for display + Plus Jakarta Sans (400/500/600) for body — loaded via `<link>` in `__root.tsx` head; keep existing Fraunces/Inter imports until landing/auth stop using them, then trim
+- Radius: sharp / minimal (editorial slabs, not rounded cards)
+- Motion: hover translate-y, gold underline draws, gentle scroll fade-in
 
-- Language switcher (globe icon + code: EN / PT / ES) placed in:
-  - The public header on `/`, `/auth`, `/blog`.
-  - The authenticated top nav (next to the profile/avatar).
-- First visit: auto-detect from `navigator.language` (`pt*` → pt-BR, `es*` → es, otherwise en).
-- Selection persists in `localStorage` and applies immediately without reload.
-- `<html lang="...">` updates to match the active language.
+Applied by adding CSS custom properties to `src/styles.css` under `:root` (e.g. `--paper`, `--espresso`, `--sienna`, `--copper`, `--gold`) and a `--font-display` var. Existing shadcn tokens stay so authenticated pages continue rendering.
 
-## Copy pass
+## Premium imagery
 
-Alongside the translation, tighten wording in all three languages:
-- Fix minor English issues (e.g. tagline "closing the gap, together" kept; verify capitalization/consistency across CTAs like "Sign in" vs "Sign In").
-- Ensure pt-BR uses natural Brazilian phrasing (não pt-PT): "Entrar", "Cadastre-se", "Mentores", "Editais e bolsas", "Comunidade", "Mensagens", "Meu perfil".
-- Ensure es uses neutral Latin-American Spanish: "Iniciar sesión", "Crear cuenta", "Mentoras", "Becas y financiación", "Comunidad".
-- Preserve product name "Black Founders Hub" and "Amara" untouched in all languages.
+Generate 4 warm editorial images via `imagegen`, saved under `src/assets/`:
 
-## Technical details
+1. `founder-hero.jpg` — Black woman founder in a sun-drenched minimalist studio (hero portrait, portrait orientation)
+2. `mentors.jpg` — two Black women in a mentorship conversation, warm window light (feature 1)
+3. `grants.jpg` — hands on a leather-bound ledger with gold accents, papers and coffee (feature 2)
+4. `community.jpg` — small group of Black women founders around a walnut table, editorial (feature 3)
 
-**Library:** `react-i18next` + `i18next` + `i18next-browser-languagedetector`.
+Imported as ES6 assets — no lovable-assets externalization for these.
 
-**File layout:**
+## `/auth` — apply prototype v2 verbatim
 
-```text
-src/i18n/
-  index.ts              # i18next init, detector, fallback = en
-  useLocale.ts          # thin hook: { t, lang, setLang }
-  LanguageSwitcher.tsx  # dropdown / segmented control
-  locales/
-    en.json
-    pt-BR.json
-    es.json
-```
+Rebuild `src/routes/auth.tsx` as a two-column editorial spread:
 
-**Key namespacing:** one flat JSON per language, keys grouped by area (`nav.*`, `landing.*`, `auth.*`, `mentors.*`, `grants.*`, `community.*`, `messages.*`, `sessions.*`, `profile.*`, `admin.*`, `blog.*`, `common.*`, `errors.*`, `toasts.*`, `seo.<route>.*`).
+- Left column (`col-span-5`): `founder-hero.jpg` with gradient overlay, "The Mastermind" eyebrow, tagline pulled from i18n
+- Right column (`col-span-7`): masthead (brand + location/est line), "Private Access" chip, oversized display heading with sienna italic accent, existing role tab (Founder / Mentor), email + password fields (thin bottom-border underline style), primary button in espresso→sienna, Google button in the same editorial style, reset/apply row
+- Keep all existing form state, Supabase calls, HIBP handling, role tabs, and Google OAuth wiring — only markup + classes change
+- Keep the current `ssr: false` on this route
 
-**Wiring:**
-- Initialize i18n once in `src/router.tsx` (or an import in `src/routes/__root.tsx`) before the tree renders.
-- Persist choice in `localStorage` key `bfh.lang`.
-- Sync `document.documentElement.lang` on change.
-- Route `head()` functions read the active language from a small helper so titles/descriptions swap when the user changes language client-side. `og:type`, `og:url`, canonical, and `og:image` stay identical across languages (single-URL strategy — no `/pt`, `/es` routes, no `hreflang` alternates). This keeps SEO simple; if you want per-locale URLs later that's a separate plan.
-- Amara system prompt in `src/routes/api/chat.ts` receives the caller's `lang` from the client and gets a "reply in {lang}" instruction appended.
+## `/` — magazine landing
 
-**Refactor pattern:** each route/component adds `const { t } = useLocale()` and replaces string literals with `t("area.key")`. No behavior changes. Toast messages migrate to keys too.
+Rebuild `src/routes/index.tsx` structure:
 
-**Out of scope:**
-- Translating database rows (blog posts, grants, mentor profiles, community content).
-- Per-language URLs / hreflang / server-side language negotiation.
-- RTL languages.
+1. **Masthead header** — brand wordmark with copper stop, small metadata (Vol. / Est. 2026), right-aligned nav: LanguageSwitcher · Sign in · Join CTA
+2. **Hero spread** — left: `Vol. 03` chip, oversized Syne headline (`t.landing.h1a` + italic sienna `t.landing.h1b`), lede paragraph, dual CTAs. Right: `founder-hero.jpg` in a bordered slab with copper caption card ("Featured Founder")
+3. **Feature triptych** — three numbered editorial cards (01/02/03) each pairing an image (`mentors.jpg` / `grants.jpg` / `community.jpg`) with `t.landing.feature{1,2,3}Title/Body`. H2 tags kept for SEO
+4. **Pull-quote band** — full-bleed espresso strip with a large italic Syne quote about community + gold rule
+5. **Closing CTA** — cream section with headline, lede, gold underline CTA (existing i18n keys)
+6. **Footer** — keep current copy incl. "Feito com propósito por Lannara Silva" purple link
 
-## Deliverables
+Ticker/marquee optional — skip on first pass to keep motion restrained.
 
-1. i18n setup files under `src/i18n/`.
-2. Three complete locale JSONs with every UI string.
-3. `LanguageSwitcher` mounted in public + authenticated shells.
-4. All 22 route files and 8 components refactored to use `t()`.
-5. Route `head()` metadata localized (title + description + og:title + og:description) for each route in all three languages.
-6. Amara system prompt updated to respect the user's UI language.
-7. Manual pass through every page in each language to catch any missed strings or awkward phrasing before handing off.
+## Motion + micro-UX
 
+- Add a small `.reveal` utility in `src/styles.css` (`opacity-0` → in-view via a lightweight `IntersectionObserver` hook in `src/hooks/use-reveal.ts`) applied to hero + section headings
+- `story-link`-style gold underline draw already exists in animations; use for header nav
+- Buttons: `hover:-translate-y-0.5` + subtle shadow
+
+## Technical notes
+
+- Fonts loaded via `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap">` in `__root.tsx` `head.links` (never `@import` in styles.css)
+- All colors used in landing/auth come from the new CSS vars — no raw hex classes in JSX; add `--color-*` mappings in `@theme inline` so `bg-espresso`, `text-copper`, `border-gold` utilities exist
+- SEO metadata on `/` and `/auth` unchanged (already tuned); update `og:image` on `/` to the new hero image
+- No DB, RLS, server-function, or auth-flow changes
+- Verify with `bun run build` + Playwright screenshot of `/` and `/auth` post-change
+
+## Files touched
+
+- `src/styles.css` — new tokens + `@theme inline` mapping + `.reveal`
+- `src/routes/__root.tsx` — add Google Fonts `<link>` entries, update og:image
+- `src/routes/index.tsx` — magazine landing rebuild
+- `src/routes/auth.tsx` — editorial split rebuild (markup only)
+- `src/hooks/use-reveal.ts` — new
+- `src/assets/founder-hero.jpg`, `mentors.jpg`, `grants.jpg`, `community.jpg` — new (generated)
+
+Out of scope: dashboard, mentors, grants, community, blog, admin, messages, profile.
