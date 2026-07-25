@@ -63,6 +63,13 @@
   --color-gold-foreground: var(--gold-foreground);
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
+  --color-paper: var(--paper);
+  --color-espresso: var(--espresso);
+  --color-sienna: var(--sienna);
+  --color-copper: var(--copper);
+  --color-gold-warm: var(--gold-warm);
+  --font-display: var(--font-display);
+  --font-editorial: var(--font-editorial);
 }
 
 :root {
@@ -103,6 +110,14 @@
   --sidebar-ring: oklch(0.82 0.16 90);
   --font-serif: "Fraunces", ui-serif, Georgia, serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* Editorial palette (landing + auth) */
+  --paper: #fdfbf7;
+  --espresso: #6b3a2a;
+  --sienna: #a0522d;
+  --copper: #cd7f32;
+  --gold-warm: #e8c07a;
+  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
