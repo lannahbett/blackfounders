@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Users, Coins, MessagesSquare } from "lucide-react";
 import { useLocale } from "@/i18n";
 import { LanguageSwitcher } from "@/i18n/LanguageSwitcher";
 import founderHero from "@/assets/founder-hero.jpg";
-import mentorsImg from "@/assets/mentors.jpg";
-import grantsImg from "@/assets/grants.jpg";
 import communityImg from "@/assets/community.jpg";
 
 export const Route = createFileRoute("/")({
