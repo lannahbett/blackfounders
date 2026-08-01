@@ -63,61 +63,59 @@
   --color-gold-foreground: var(--gold-foreground);
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
-  --color-paper: var(--paper);
-  --color-espresso: var(--espresso);
-  --color-sienna: var(--sienna);
-  --color-copper: var(--copper);
-  --color-gold-warm: var(--gold-warm);
+  --color-ivory: var(--ivory);
+  --color-ink: var(--ink);
+  --color-terracotta: var(--terracotta);
+  --color-stone: var(--stone);
   --font-display: var(--font-display);
   --font-editorial: var(--font-editorial);
 }
 
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.972 0.018 85);
-  --foreground: oklch(0.225 0.035 35);
-  --card: oklch(0.985 0.012 85);
-  --card-foreground: oklch(0.225 0.035 35);
-  --popover: oklch(0.985 0.012 85);
-  --popover-foreground: oklch(0.225 0.035 35);
-  --primary: oklch(0.225 0.035 35);
-  --primary-foreground: oklch(0.972 0.018 85);
-  --secondary: oklch(0.93 0.04 75);
-  --secondary-foreground: oklch(0.225 0.035 35);
-  --muted: oklch(0.92 0.025 75);
-  --muted-foreground: oklch(0.42 0.03 40);
-  --accent: oklch(0.66 0.16 45);
-  --accent-foreground: oklch(0.985 0.012 85);
-  --gold: oklch(0.82 0.16 90);
-  --gold-foreground: oklch(0.225 0.035 35);
+  --radius: 0.375rem;
+  --background: oklch(0.987 0.005 85);
+  --foreground: oklch(0.19 0.008 40);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.008 40);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.008 40);
+  --primary: oklch(0.19 0.008 40);
+  --primary-foreground: oklch(0.987 0.005 85);
+  --secondary: oklch(0.93 0.008 80);
+  --secondary-foreground: oklch(0.19 0.008 40);
+  --muted: oklch(0.945 0.006 80);
+  --muted-foreground: oklch(0.5 0.012 45);
+  --accent: oklch(0.58 0.098 44);
+  --accent-foreground: oklch(0.987 0.005 85);
+  --gold: oklch(0.58 0.098 44);
+  --gold-foreground: oklch(0.987 0.005 85);
   --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.985 0.012 85);
-  --border: oklch(0.86 0.025 70);
-  --input: oklch(0.86 0.025 70);
-  --ring: oklch(0.66 0.16 45);
-  --chart-1: oklch(0.66 0.16 45);
-  --chart-2: oklch(0.82 0.16 90);
-  --chart-3: oklch(0.225 0.035 35);
-  --chart-4: oklch(0.5 0.12 30);
-  --chart-5: oklch(0.75 0.1 60);
-  --sidebar: oklch(0.225 0.035 35);
-  --sidebar-foreground: oklch(0.972 0.018 85);
-  --sidebar-primary: oklch(0.82 0.16 90);
-  --sidebar-primary-foreground: oklch(0.225 0.035 35);
-  --sidebar-accent: oklch(0.32 0.04 35);
-  --sidebar-accent-foreground: oklch(0.972 0.018 85);
-  --sidebar-border: oklch(0.32 0.04 35);
-  --sidebar-ring: oklch(0.82 0.16 90);
-  --font-serif: "Fraunces", ui-serif, Georgia, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  /* Editorial palette (landing + auth) */
-  --paper: #fdfbf7;
-  --espresso: #6b3a2a;
-  --sienna: #a0522d;
-  --copper: #cd7f32;
-  --gold-warm: #e8c07a;
-  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
-  --font-editorial: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --destructive-foreground: oklch(0.987 0.005 85);
+  --border: oklch(0.905 0.008 80);
+  --input: oklch(0.905 0.008 80);
+  --ring: oklch(0.58 0.098 44);
+  --chart-1: oklch(0.58 0.098 44);
+  --chart-2: oklch(0.19 0.008 40);
+  --chart-3: oklch(0.7 0.05 60);
+  --chart-4: oklch(0.5 0.03 45);
+  --chart-5: oklch(0.82 0.02 80);
+  --sidebar: oklch(0.987 0.005 85);
+  --sidebar-foreground: oklch(0.19 0.008 40);
+  --sidebar-primary: oklch(0.19 0.008 40);
+  --sidebar-primary-foreground: oklch(0.987 0.005 85);
+  --sidebar-accent: oklch(0.945 0.006 80);
+  --sidebar-accent-foreground: oklch(0.19 0.008 40);
+  --sidebar-border: oklch(0.905 0.008 80);
+  --sidebar-ring: oklch(0.58 0.098 44);
+  --font-serif: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  /* Clean premium palette (landing + auth) */
+  --ivory: #fbfaf7;
+  --ink: #1c1a17;
+  --terracotta: #b5613c;
+  --stone: #e6e1d8;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-editorial: "Figtree", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
@@ -168,6 +166,21 @@
 
   h1, h2, h3, .font-serif {
     font-family: var(--font-serif);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility reveal {
+  animation: reveal-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

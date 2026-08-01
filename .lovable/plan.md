@@ -1,70 +1,41 @@
-## Scope
+## Goal
 
-Redesign only the public surfaces: `/` (landing) and `/auth`. Authenticated app pages, business logic, i18n keys, and routes stay unchanged.
+Replace the heavy editorial look on `/` and `/auth` with a calm, premium, mostly-typographic design. Fewer images, more whitespace, quieter accent color. No changes to authenticated logic, data, or routes.
 
-## Design tokens (locked)
+## Locked design decisions
 
-- Palette: paper `#fdfbf7`, espresso `#6b3a2a`, sienna `#a0522d`, copper `#cd7f32`, gold `#e8c07a`
-- Type: Syne (700/800) for display + Plus Jakarta Sans (400/500/600) for body — loaded via `<link>` in `__root.tsx` head; keep existing Fraunces/Inter imports until landing/auth stop using them, then trim
-- Radius: sharp / minimal (editorial slabs, not rounded cards)
-- Motion: hover translate-y, gold underline draws, gentle scroll fade-in
+- **Palette**: ivory `#FBFAF7` background, ink `#1C1A17` text, muted terracotta `#B5613C` accent, soft stone `#E6E1D8` borders/surfaces
+- **Type**: Outfit (headings, 500/600 — not 800) + Figtree (body, 400/500). Drops Syne / Plus Jakarta and the Fraunces/Inter leftovers
+- **Layout**: stacked full-width sections, generous vertical rhythm, hairline dividers instead of boxed slabs
+- **Radius**: small but not sharp (6px) — modern rather than brutalist
+- **Motion**: restrained — soft fade/rise on scroll, subtle hover states only
 
-Applied by adding CSS custom properties to `src/styles.css` under `:root` (e.g. `--paper`, `--espresso`, `--sienna`, `--copper`, `--gold`) and a `--font-display` var. Existing shadcn tokens stay so authenticated pages continue rendering.
+## Images
 
-## Premium imagery
+Keep two: `founder-hero.jpg` (landing hero) and `community.jpg` (one supporting band lower down). `mentors.jpg` and `grants.jpg` stop being used; feature sections become clean icon + text instead of image cards.
 
-Generate 4 warm editorial images via `imagegen`, saved under `src/assets/`:
+## `/` landing rebuild
 
-1. `founder-hero.jpg` — Black woman founder in a sun-drenched minimalist studio (hero portrait, portrait orientation)
-2. `mentors.jpg` — two Black women in a mentorship conversation, warm window light (feature 1)
-3. `grants.jpg` — hands on a leather-bound ledger with gold accents, papers and coffee (feature 2)
-4. `community.jpg` — small group of Black women founders around a walnut table, editorial (feature 3)
+1. **Header** — light, ivory, hairline bottom border: wordmark, then LanguageSwitcher · Sign in · Join
+2. **Hero** — asymmetric two columns: left small eyebrow label, large light-weight Outfit headline, lede, two CTAs (solid ink primary, quiet text-link secondary). Right the founder portrait, softly rounded, no border frame, no caption card
+3. **Trust line** — one hairline row of short stat/labels in small caps
+4. **Three features** — one full-width section, three text columns with a small line icon each, hairline separators, H2s kept for SEO
+5. **Community band** — calm section using `community.jpg` at reduced height with an ivory-tinted overlay and a short quote
+6. **Closing CTA** — centered, whitespace-heavy, single button
+7. **Footer** — keep existing copy including "Feito com propósito por **Lannara Silva**" purple link
 
-Imported as ES6 assets — no lovable-assets externalization for these.
+All existing i18n keys reused; no new copy keys needed.
 
-## `/auth` — apply prototype v2 verbatim
+## `/auth` rebuild
 
-Rebuild `src/routes/auth.tsx` as a two-column editorial spread:
-
-- Left column (`col-span-5`): `founder-hero.jpg` with gradient overlay, "The Mastermind" eyebrow, tagline pulled from i18n
-- Right column (`col-span-7`): masthead (brand + location/est line), "Private Access" chip, oversized display heading with sienna italic accent, existing role tab (Founder / Mentor), email + password fields (thin bottom-border underline style), primary button in espresso→sienna, Google button in the same editorial style, reset/apply row
-- Keep all existing form state, Supabase calls, HIBP handling, role tabs, and Google OAuth wiring — only markup + classes change
-- Keep the current `ssr: false` on this route
-
-## `/` — magazine landing
-
-Rebuild `src/routes/index.tsx` structure:
-
-1. **Masthead header** — brand wordmark with copper stop, small metadata (Vol. / Est. 2026), right-aligned nav: LanguageSwitcher · Sign in · Join CTA
-2. **Hero spread** — left: `Vol. 03` chip, oversized Syne headline (`t.landing.h1a` + italic sienna `t.landing.h1b`), lede paragraph, dual CTAs. Right: `founder-hero.jpg` in a bordered slab with copper caption card ("Featured Founder")
-3. **Feature triptych** — three numbered editorial cards (01/02/03) each pairing an image (`mentors.jpg` / `grants.jpg` / `community.jpg`) with `t.landing.feature{1,2,3}Title/Body`. H2 tags kept for SEO
-4. **Pull-quote band** — full-bleed espresso strip with a large italic Syne quote about community + gold rule
-5. **Closing CTA** — cream section with headline, lede, gold underline CTA (existing i18n keys)
-6. **Footer** — keep current copy incl. "Feito com propósito por Lannara Silva" purple link
-
-Ticker/marquee optional — skip on first pass to keep motion restrained.
-
-## Motion + micro-UX
-
-- Add a small `.reveal` utility in `src/styles.css` (`opacity-0` → in-view via a lightweight `IntersectionObserver` hook in `src/hooks/use-reveal.ts`) applied to hero + section headings
-- `story-link`-style gold underline draw already exists in animations; use for header nav
-- Buttons: `hover:-translate-y-0.5` + subtle shadow
+Move from the full-bleed 5/7 image spread to a centered single-column card on ivory: wordmark, mode chip, quiet heading, Google button, divider, standard inputs with soft stone borders and small radius, ink primary button, role tabs kept for signup. The image column is removed (that's the "hero + one" image budget). All form state, backend calls, breached-password handling, role logic, and Google sign-in wiring stay untouched.
 
 ## Technical notes
 
-- Fonts loaded via `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap">` in `__root.tsx` `head.links` (never `@import` in styles.css)
-- All colors used in landing/auth come from the new CSS vars — no raw hex classes in JSX; add `--color-*` mappings in `@theme inline` so `bg-espresso`, `text-copper`, `border-gold` utilities exist
-- SEO metadata on `/` and `/auth` unchanged (already tuned); update `og:image` on `/` to the new hero image
-- No DB, RLS, server-function, or auth-flow changes
-- Verify with `bun run build` + Playwright screenshot of `/` and `/auth` post-change
+- `src/styles.css`: replace the editorial vars (`--paper`, `--espresso`, `--sienna`, `--copper`, `--gold-warm`) with `--ivory`, `--ink`, `--terracotta`, `--stone` in oklch, mapped in `@theme inline`. Set `--font-display: Outfit`, `--font-editorial: Figtree` (keeping var names avoids touching unrelated files). Also retune the shadcn `--primary`/`--accent`/`--border`/`--background` tokens to the new palette so authenticated pages inherit the calmer look without markup changes. Add a `.reveal` fade utility.
+- `src/routes/__root.tsx`: swap the Google Fonts `<link>` to Outfit + Figtree; drop the old font links; keep og:image on the hero.
+- `src/routes/index.tsx` and `src/routes/auth.tsx`: markup + class rewrites only.
+- Remove now-unused `mentors.jpg` / `grants.jpg` imports (files left in place in case they're wanted later).
+- Verify with a production build plus screenshots of `/` and `/auth` at mobile and desktop widths.
 
-## Files touched
-
-- `src/styles.css` — new tokens + `@theme inline` mapping + `.reveal`
-- `src/routes/__root.tsx` — add Google Fonts `<link>` entries, update og:image
-- `src/routes/index.tsx` — magazine landing rebuild
-- `src/routes/auth.tsx` — editorial split rebuild (markup only)
-- `src/hooks/use-reveal.ts` — new
-- `src/assets/founder-hero.jpg`, `mentors.jpg`, `grants.jpg`, `community.jpg` — new (generated)
-
-Out of scope: dashboard, mentors, grants, community, blog, admin, messages, profile.
+Out of scope: dashboard, mentors, grants, community, messages, profile, blog, admin, database, auth flow.
