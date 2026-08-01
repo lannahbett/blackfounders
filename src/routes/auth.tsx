@@ -5,7 +5,6 @@ import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 import { useLocale } from "@/i18n";
 import { LanguageSwitcher } from "@/i18n/LanguageSwitcher";
-import founderHero from "@/assets/founder-hero.jpg";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
