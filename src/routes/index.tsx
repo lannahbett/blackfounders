@@ -30,7 +30,7 @@ function Index() {
   ];
 
   const stats = [
-    { value: "420+", label: t.nav.founders ?? "Founders" },
+    { value: "420+", label: "Founders" },
     { value: "30+", label: "Grants" },
     { value: "24", label: "Mentors" },
   ];
