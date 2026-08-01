@@ -29,12 +29,6 @@ function Index() {
     { Icon: MessagesSquare, title: t.landing.feature3Title, body: t.landing.feature3Body },
   ];
 
-  const stats = [
-    { value: "420+", label: "Founders" },
-    { value: "30+", label: "Grants" },
-    { value: "24", label: "Mentors" },
-  ];
-
   return (
     <div
       className="min-h-screen bg-ivory text-ink"
@@ -70,28 +64,39 @@ function Index() {
 
       <main>
         {/* Hero */}
-        <section className="mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-28">
+        <section className="relative overflow-hidden">
+          <div
+            aria-hidden
+            className="float-slow pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-terracotta/10 blur-3xl"
+          />
+          <div
+            aria-hidden
+            className="float-slow pointer-events-none absolute -left-32 top-1/2 h-80 w-80 rounded-full bg-stone/50 blur-3xl"
+            style={{ animationDelay: "-4s" }}
+          />
+          <div className="relative mx-auto max-w-6xl px-6 py-16 md:px-8 md:py-28">
           <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="reveal lg:col-span-7">
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-terracotta">
+              <p className="reveal text-xs font-medium uppercase tracking-[0.22em] text-terracotta">
                 {t.landing.badge}
               </p>
               <h1
-                className="mt-6 text-4xl font-light leading-[1.05] tracking-tight md:text-6xl"
+                className="reveal reveal-delay-1 mt-6 text-4xl font-light leading-[1.05] tracking-tight md:text-6xl"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 {t.landing.h1a}{" "}
                 <span className="font-medium text-terracotta">{t.landing.h1b}</span>
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-ink/65 md:text-lg">
+              <p className="reveal reveal-delay-2 mt-6 max-w-xl text-base leading-relaxed text-ink/65 md:text-lg">
                 {t.landing.lede}
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-6">
+              <div className="reveal reveal-delay-3 mt-9 flex flex-wrap items-center gap-6">
                 <Link
                   to="/auth"
-                  className="inline-flex items-center gap-2 rounded-md bg-ink px-6 py-3 text-sm font-medium text-ivory transition-colors hover:bg-terracotta"
+                  className="group inline-flex items-center gap-2 rounded-md bg-ink px-6 py-3 text-sm font-medium text-ivory transition-all duration-300 hover:-translate-y-0.5 hover:bg-terracotta hover:shadow-lg"
                 >
-                  {t.landing.ctaPrimary} <ArrowRight className="h-4 w-4" />
+                  {t.landing.ctaPrimary}{" "}
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link
                   to="/auth"
@@ -102,44 +107,26 @@ function Index() {
               </div>
             </div>
 
-            <div className="reveal lg:col-span-5">
+            <div className="reveal reveal-delay-2 lg:col-span-5">
               <div className="aspect-[4/5] w-full overflow-hidden rounded-lg bg-stone/40">
                 <img
                   src={founderHero}
                   alt="Black woman founder in a sun-drenched studio"
-                  className="h-full w-full object-cover"
+                  className="ken-burns h-full w-full object-cover"
                   width={1024}
                   height={1536}
                 />
               </div>
             </div>
           </div>
-        </section>
-
-        {/* Trust line */}
-        <section className="border-y border-stone">
-          <div className="mx-auto grid max-w-6xl grid-cols-3 divide-x divide-stone px-6 md:px-8">
-            {stats.map(({ value, label }) => (
-              <div key={label} className="px-2 py-8 text-center md:py-10">
-                <div
-                  className="text-2xl font-medium tracking-tight md:text-3xl"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  {value}
-                </div>
-                <div className="mt-2 text-[11px] uppercase tracking-[0.2em] text-ink/45">
-                  {label}
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 
         {/* Features */}
-        <section className="mx-auto max-w-6xl px-6 py-20 md:px-8 md:py-28">
+        <section className="mx-auto max-w-6xl border-t border-stone px-6 py-20 md:px-8 md:py-28">
           <div className="grid gap-12 md:grid-cols-3 md:gap-10">
             {features.map(({ Icon, title, body }) => (
-              <article key={title}>
+              <article key={title} className="group">
                 <Icon className="h-5 w-5 text-terracotta" strokeWidth={1.5} />
                 <h2
                   className="mt-5 text-xl font-medium leading-snug tracking-tight"
@@ -154,22 +141,22 @@ function Index() {
         </section>
 
         {/* Community band */}
-        <section className="relative overflow-hidden border-y border-stone">
+        <section className="relative overflow-hidden">
           <img
             src={communityImg}
             alt="Black women founders collaborating around a table"
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="ken-burns absolute inset-0 h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-ivory/85" />
-          <div className="relative mx-auto max-w-3xl px-6 py-24 text-center md:px-8 md:py-32">
+          <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/60 to-ink/25" />
+          <div className="relative mx-auto max-w-3xl px-6 py-32 text-center md:px-8 md:py-44">
             <blockquote
-              className="text-2xl font-light leading-snug tracking-tight md:text-4xl"
+              className="text-2xl font-light leading-snug tracking-tight text-ivory md:text-4xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              “You shouldn’t have to build alone.”
+              “{t.landing.communityQuote}”
             </blockquote>
-            <p className="mt-6 text-[11px] uppercase tracking-[0.22em] text-ink/45">
+            <p className="mt-6 text-[11px] uppercase tracking-[0.22em] text-ivory/60">
               {t.brand.name}
             </p>
           </div>
