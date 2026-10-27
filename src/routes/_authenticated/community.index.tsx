@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_authenticated/community/")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  errorComponent: ({ error }) => <p className="text-destructive">{error.message}</p>,
+  errorComponent: ({ error }) => <p className="text-destructive">{error instanceof Error ? error.message : String(error)}</p>,
   notFoundComponent: () => <p>Not found</p>,
   component: Community,
 });

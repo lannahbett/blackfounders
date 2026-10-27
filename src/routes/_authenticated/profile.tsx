@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({ meta: [{ title: "Profile — Black Founders Hub" }] }),
-  errorComponent: ({ error }) => <p className="text-destructive">{error.message}</p>,
+  errorComponent: ({ error }) => <p className="text-destructive">{error instanceof Error ? error.message : String(error)}</p>,
   notFoundComponent: () => <p>Not found</p>,
   component: ProfilePage,
 });

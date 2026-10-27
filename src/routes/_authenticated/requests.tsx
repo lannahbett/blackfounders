@@ -12,7 +12,7 @@ import { format } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({ meta: [{ title: "Mentorship requests" }] }),
-  errorComponent: ({ error }) => <p className="text-destructive">{error.message}</p>,
+  errorComponent: ({ error }) => <p className="text-destructive">{error instanceof Error ? error.message : String(error)}</p>,
   notFoundComponent: () => <p>Not found</p>,
   component: RequestsPage,
 });
