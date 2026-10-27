@@ -8,6 +8,13 @@
       "when": 1793137911234,
       "tag": "0000_restrict_profiles_visibility",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793138106605,
+      "tag": "0001_mentor_role_at_signup_and_grants_members_only",
+      "breakpoints": true
     }
   ]
 }

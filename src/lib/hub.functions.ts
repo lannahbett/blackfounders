@@ -79,14 +79,16 @@ export const upsertMentorProfile = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    const { userId } = context;
-    // Use the admin client to grant the mentor role + create an unverified profile.
-    // Admin must flip `verified` before the mentor is treated as vetted.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: roleErr } = await supabaseAdmin
+    const { userId, supabase } = context;
+    // Only users who signed up as mentors (role assigned at signup) may create a mentor profile.
+    const { data: roleRow } = await supabase
       .from("user_roles")
-      .upsert({ user_id: userId, role: "mentor" }, { onConflict: "user_id,role" });
-    if (roleErr) throw new Error(roleErr.message);
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "mentor")
+      .maybeSingle();
+    if (!roleRow) throw new Error("Forbidden: only mentor accounts can create a mentor profile");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error: profErr } = await supabaseAdmin
       .from("mentor_profiles")
       .upsert(
