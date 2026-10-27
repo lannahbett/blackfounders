@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "@tanstack/react-router";
 import { useLocale } from "@/i18n";
 
-export function DataErrorState({ error, reset }: { error: Error | string; reset?: () => void }) {
+export function DataErrorState({ error, reset }: { error: unknown; reset?: () => void }) {
   const router = useRouter();
   const { t } = useLocale();
-  const raw = typeof error === "string" ? error : error.message;
+  const raw = typeof error === "string" ? error : error instanceof Error ? error.message : String(error ?? "");
   const message = !raw
     ? t.errors.generic
     : /relationship between/i.test(raw) || /schema cache/i.test(raw)

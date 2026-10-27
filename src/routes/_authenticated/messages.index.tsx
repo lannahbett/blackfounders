@@ -11,7 +11,7 @@ import { useLocale } from "@/i18n";
 
 export const Route = createFileRoute("/_authenticated/messages/")({
   head: () => ({ meta: [{ title: "Messages — Black Founders Hub" }] }),
-  errorComponent: ({ error }) => <p className="text-destructive">{error.message}</p>,
+  errorComponent: ({ error }) => <p className="text-destructive">{error instanceof Error ? error.message : String(error)}</p>,
   notFoundComponent: () => <p>Not found</p>,
   component: MessagesIndex,
 });
